@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react';
 import { setupGame } from '../components/functions';
 
-export function useNextLevel(config) {
-  const [level, setLevels] = useState(config.levels);
-  const [playing, setPlaying] = useState(config.playing);
+export function useNextLevel(data = {}) {
+  // const [level, setLevels] = useState(config.levels);
+  const [config, setConfig] = useState({ ...data });
 
   useEffect(() => {
-    if (playing) {
-      setupGame(level);
+    if (config.playing) {
+      setupGame(config.levels);
     }
-  },[playing,level]);
+  }, [config]);
 
-  return [
-    { level, playing },
-    { setLevels, setPlaying },
-  ];
+  return [config, setConfig];
 }
