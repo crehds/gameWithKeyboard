@@ -59,7 +59,7 @@ export const arr2 = [
   },
   {
     dataKey: '71',
-    letter: 'f',
+    letter: 'g',
   },
   {
     dataKey: '72',
