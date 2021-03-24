@@ -3,7 +3,7 @@ import { KeyWrapper } from './styles';
 
 export const Key = (props) => {
   return (
-    <KeyWrapper data-key={props.dataKey}>
+    <KeyWrapper className='key' data-key={props.dataKey}>
       {props.letter}
     </KeyWrapper>
   );
