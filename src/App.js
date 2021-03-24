@@ -6,10 +6,11 @@ import { useNextLevel } from './hooks/useNextLevel';
 
 function App() {
   // eslint-disable-next-line no-unused-vars
-  const [playing, setPlaying] = useNextLevel(15);
+  const [config, setConfig] = useNextLevel({levels: 15,
+  playing: false});
   useEffect(() => {
-    setPlaying(true)
-  },[setPlaying])
+    setConfig.setPlaying(true)
+  },[setConfig])
 
   return (
     <div className='App'>

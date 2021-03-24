@@ -1,10 +1,11 @@
 import Swal from 'sweetalert2';
 
-const levels = 15;
-let teclas = generarTeclas(levels);
+export function setupGame(levels) {
+  let teclas = generarTeclas(levels);
+  siguienteNivel(0, levels, teclas);
+}
 
-export function siguienteNivel(nivelActual) {
-  console.log('iniciado');
+export function siguienteNivel(nivelActual, levels, teclas) {
   console.log(teclas);
   if (nivelActual === levels) {
     return Swal.fire({
@@ -21,12 +22,7 @@ export function siguienteNivel(nivelActual) {
   });
 
   for (let i = 0; i <= nivelActual; i++) {
-    console.log('en el for');
-    setTimeout(
-      (teclas) => activate(teclas[i]),
-      1000 * (i + 1) + 1000,
-      teclas
-    );
+    setTimeout((teclas) => activate(teclas[i]), 1000 * (i + 1) + 1000, teclas);
   }
 
   let i = 0; //para analizar cada tecla desde el principio
@@ -36,7 +32,6 @@ export function siguienteNivel(nivelActual) {
   function onkeydown(ev) {
     if (ev.keyCode === teclaActual) {
       //compara la tecla presionada con la que se mostro a pulsar
-      console.log('en el keydown');
       activate(teclaActual, { success: true });
       i++;
 
@@ -45,7 +40,7 @@ export function siguienteNivel(nivelActual) {
       if (i > nivelActual) {
         //
         window.removeEventListener('keydown', onkeydown);
-        setTimeout(() => siguienteNivel(i), 1000);
+        setTimeout(() => siguienteNivel(i, levels, teclas), 1000);
       }
 
       teclaActual = teclas[i];
@@ -64,7 +59,7 @@ export function siguienteNivel(nivelActual) {
           if (ok.value) {
             //cuanto sufri para esto....
             teclas = generarTeclas(levels);
-            siguienteNivel(0);
+            siguienteNivel(0, levels, teclas);
           }
         });
       }, 400);

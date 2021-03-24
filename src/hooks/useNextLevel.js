@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import { siguienteNivel } from '../components/functions';
+import { setupGame } from '../components/functions';
 
-
-export function useNextLevel(levels) {
-  // const [level, setLevels] = useState(levels);
-  const [playing, setPlaying] = useState(false);
-  // let teclas = generarTeclas(15);
+export function useNextLevel(config) {
+  const [level, setLevels] = useState(config.levels);
+  const [playing, setPlaying] = useState(config.playing);
 
   useEffect(() => {
-    if(playing) {
-      siguienteNivel(0);
+    if (playing) {
+      setupGame(level);
     }
-  })
-  return [playing, setPlaying];
+  },[playing,level]);
+
+  return [
+    { level, playing },
+    { setLevels, setPlaying },
+  ];
 }
