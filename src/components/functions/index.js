@@ -23,13 +23,27 @@ export function siguienteNivel(nivelActual, levels, teclas) {
 
   for (let i = 0; i <= nivelActual; i++) {
     setTimeout((teclas) => activate(teclas[i]), 1000 * (i + 1) + 1000, teclas);
+    if (i === nivelActual) {
+      setTimeout(
+        () => window.addEventListener('keydown', onkeydown),
+        1000 * (i + 1) + 1400
+      );
+    }
   }
 
   let i = 0; //para analizar cada tecla desde el principio
   let teclaActual = teclas[i];
-  window.addEventListener('keydown', onkeydown);
 
   function onkeydown(ev) {
+    if (ev.keyCode < 65 || ev.keyCode > 90) {
+      Swal.fire({
+        title: 'Tecla fuera del juego',
+        text:
+          'Presiona una tecla dentro de las mostradas en pantalla y que sea la correcta para seguir adelante',
+        icon: 'info',
+      });
+      return null;
+    }
     if (ev.keyCode === teclaActual) {
       //compara la tecla presionada con la que se mostro a pulsar
       activate(teclaActual, { success: true });
@@ -87,6 +101,7 @@ function getElementByKeyCode(keyCode) {
 function activate(keyCode, opts = {}) {
   console.log('en el activate');
   const el = getElementByKeyCode(keyCode); //se le asigna a la variable el, la tecla presionada
+  if (!el) return null;
   el.classList.add('active'); //se le agrega la clase de css active
   //se invoca al atributo del objeto opts, es una atributo predeterminado
   //asi como el codigo que tiene cada tecla

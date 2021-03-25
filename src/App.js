@@ -25,9 +25,9 @@ function App() {
       input: 'select',
       inputLabel: 'Selecciona la dificultad',
       inputOptions: {
-        rookie: 'novato',
-        normal: 'normal',
-        expert: 'experto',
+        rookie: 'Novato - 10 niveles',
+        normal: 'Normal - 13 niveles',
+        expert: 'Experto - 16 niveles',
       },
       inputValue: 'normal',
     });
