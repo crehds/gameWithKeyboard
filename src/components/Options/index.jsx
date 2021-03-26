@@ -2,6 +2,7 @@ import React from 'react';
 import { OptionsWrapper } from './styles';
 import { BiRefresh } from 'react-icons/bi';
 import { GiStarAltar } from 'react-icons/gi';
+import { GiPlayButton } from 'react-icons/gi';
 
 export const Options = (props) => {
   return (
@@ -9,9 +10,15 @@ export const Options = (props) => {
       onClick={props.handleSetupGame}
       statusGame={props.statusGame}
     >
-      <BiRefresh />
+      {props.statusGame ? (
+        <BiRefresh />
+      ) : (
+        <div>
+          <GiPlayButton />
+        </div>
+      )}
       <GiStarAltar className='statusGame' />
-      {props.statusGame ? 'Jugando' : 'Finalizado'}
+      {props.statusGame ? 'Jugando' : 'Apagado'}
     </OptionsWrapper>
   );
 };

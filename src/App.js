@@ -18,8 +18,9 @@ function App() {
   async function handleSetupGame() {
     const lvlsPerDifficulty = {
       rookie: 10,
-      normal: 13,
-      expert: 16,
+      normal: 14,
+      expert: 18,
+      eidetic: 22
     };
     const { value: difficulty } = await Swal.fire({
       title: 'Configuración del juego',
@@ -27,27 +28,24 @@ function App() {
       inputLabel: 'Selecciona la dificultad',
       inputOptions: {
         rookie: 'Novato - 10 niveles',
-        normal: 'Normal - 13 niveles',
-        expert: 'Experto - 16 niveles',
+        normal: 'Normal - 14 niveles',
+        expert: 'Experto - 18 niveles',
+        eidetic: 'Eidético - 22 niveles',
       },
       inputValue: 'normal',
+      showCancelButton: true,
     });
-
-    if (!difficulty) {
+    if (difficulty) {
       return setConfig({
-        levels: lvlsPerDifficulty.normal,
+        levels: lvlsPerDifficulty[difficulty],
         playing: true,
       });
     }
-    return setConfig({
-      levels: lvlsPerDifficulty[difficulty],
-      playing: true,
-    });
   }
 
   return (
     <div className='App'>
-      <Options handleSetupGame={handleSetupGame} statusGame={config.playing}/>
+      <Options handleSetupGame={handleSetupGame} statusGame={config.playing} />
       <GlobalStyle />
       <KeyBoard />
     </div>
