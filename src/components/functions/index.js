@@ -1,23 +1,24 @@
 import Swal from 'sweetalert2';
 
-export function setupGame(levels) {
+export function setupGame(levels, setConfig) {
   let teclas = generarTeclas(levels);
-  siguienteNivel(0, levels, teclas);
+  const result = siguienteNivel(0, levels, teclas, setConfig);
+  return result;
 }
 
-export function siguienteNivel(nivelActual, levels, teclas) {
-  console.log(teclas);
+export function siguienteNivel(nivelActual, levels, teclas, setConfig) {
   if (nivelActual === levels) {
-    return Swal.fire({
+    Swal.fire({
       title: 'Ganaste!',
       text: 'Tu memoria es de otro nivel',
       icon: 'success',
     });
+    return true;
   }
 
   Swal.fire({
     timer: 1000,
-    text: `Nivel ${nivelActual + 1}`,
+    text: `Nivel ${nivelActual + 1} de ${levels}`,
     showConfirmButton: false,
   });
 
@@ -54,7 +55,7 @@ export function siguienteNivel(nivelActual, levels, teclas) {
       if (i > nivelActual) {
         //
         window.removeEventListener('keydown', onkeydown);
-        setTimeout(() => siguienteNivel(i, levels, teclas), 1000);
+        setTimeout(() => siguienteNivel(i, levels, teclas, setConfig), 1000);
       }
 
       teclaActual = teclas[i];
@@ -73,7 +74,9 @@ export function siguienteNivel(nivelActual, levels, teclas) {
           if (ok.value) {
             //cuanto sufri para esto....
             teclas = generarTeclas(levels);
-            siguienteNivel(0, levels, teclas);
+            siguienteNivel(0, levels, teclas, setConfig);
+          } else {
+            return setConfig({ levels: 0, playing: false });
           }
         });
       }, 400);

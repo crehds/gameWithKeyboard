@@ -25,7 +25,6 @@ export const GlobalStyle = createGlobalStyle`
     background: black;
     color: white;
     /* height: 100vh; */
-    position:relative;
   }
 
 
@@ -35,6 +34,7 @@ export const GlobalStyle = createGlobalStyle`
 
   .App {
     font-family: 'Montserrat', sans-serif;
+    position:relative;
     /* min-height: 100vh; */
     /* width: 100%; */
   }

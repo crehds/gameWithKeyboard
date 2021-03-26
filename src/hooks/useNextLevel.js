@@ -7,7 +7,7 @@ export function useNextLevel(data = {}) {
 
   useEffect(() => {
     if (config.playing) {
-      setupGame(config.levels);
+      setupGame(config.levels, setConfig);
     }
   }, [config]);
 

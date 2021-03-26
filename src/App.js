@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 import './App.css';
 import { KeyBoard } from './components/Keyboard';
+import { Options } from './components/Options';
 import { GlobalStyle } from './GlobalStyles';
 import { useNextLevel } from './hooks/useNextLevel';
 
@@ -43,8 +44,13 @@ function App() {
       playing: true,
     });
   }
+
+  // function handleRefresh() {
+  //   handleSetupGame()
+  // }
   return (
     <div className='App'>
+      <Options handleSetupGame={handleSetupGame}/>
       <GlobalStyle />
       <KeyBoard />
     </div>
