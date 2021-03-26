@@ -45,12 +45,9 @@ function App() {
     });
   }
 
-  // function handleRefresh() {
-  //   handleSetupGame()
-  // }
   return (
     <div className='App'>
-      <Options handleSetupGame={handleSetupGame}/>
+      <Options handleSetupGame={handleSetupGame} statusGame={config.playing}/>
       <GlobalStyle />
       <KeyBoard />
     </div>
