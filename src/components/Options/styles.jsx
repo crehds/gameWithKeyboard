@@ -26,7 +26,7 @@ export const OptionsWrapper = styled.div`
           color: ${statusGame ? 'green' : 'red'};
         `}
     }
-    &:nth-of-type(1) {
+    &.refreshGame {
       cursor: pointer;
       &:hover {
         fill: white;

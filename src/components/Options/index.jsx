@@ -6,14 +6,11 @@ import { GiPlayButton } from 'react-icons/gi';
 
 export const Options = (props) => {
   return (
-    <OptionsWrapper
-      onClick={props.handleSetupGame}
-      statusGame={props.statusGame}
-    >
+    <OptionsWrapper statusGame={props.statusGame}>
       {props.statusGame ? (
-        <BiRefresh />
+        <BiRefresh className='refreshGame' onClick={props.handleSetupGame} />
       ) : (
-        <div>
+        <div onClick={props.handleSetupGame}>
           <GiPlayButton />
         </div>
       )}
