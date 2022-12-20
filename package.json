@@ -6,10 +6,10 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.0.2",
+    "react-dom": "^18.0.2",
     "react-icons": "^4.2.0",
-    "react-scripts": "4.0.3",
+    "react-scripts": "^5.0.1",
     "styled-components": "^5.2.1",
     "sweetalert2": "^10.15.6",
     "web-vitals": "^1.0.1"
@@ -40,7 +40,14 @@
   },
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "index.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  },
   "keywords": [
     "keyboardGame"
   ],
