@@ -11,7 +11,8 @@ const Wave = keyframes`
     opacity: 0;
   }
 `;
-export const OptionsWrapper = styled.div`
+
+const OptionsWrapper = styled.div`
   position: absolute;
   display: flex;
   align-items: center;
@@ -21,8 +22,7 @@ export const OptionsWrapper = styled.div`
     font-size: 30px;
     color: gray;
     &.statusGame {
-      ${({ statusGame }) =>
-        css`
+      ${({ statusGame }) => css`
           color: ${statusGame ? 'green' : 'red'};
         `}
     }
@@ -59,3 +59,5 @@ export const OptionsWrapper = styled.div`
     }
   }
 `;
+
+export default OptionsWrapper;
