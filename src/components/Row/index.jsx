@@ -1,13 +1,19 @@
-import React from 'react';
-import { Key } from '../Key';
-import { RowWrapper } from './styles';
+import PropTypes from 'prop-types';
+import Key from '../Key';
+import RowWrapper from './styles';
 
-export const Row = ({arrKeys = []}) => {
+function Row({ arrKeys = [] }) {
   return (
     <RowWrapper>
-      {arrKeys.map((e, i) => (
-        <Key key={i} letter={e.letter} dataKey={e.dataKey} />
+      {arrKeys.map((e) => (
+        <Key key={e.dataKey} letter={e.letter} dataKey={e.dataKey} />
       ))}
     </RowWrapper>
   );
+}
+
+Row.propTypes = {
+  arrKeys: PropTypes.instanceOf(Array).isRequired,
 };
+
+export default Row;

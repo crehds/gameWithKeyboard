@@ -1,9 +1,8 @@
-import React from 'react';
 import { arr1, arr2, arr3 } from '../../arrKeys';
-import { Row } from '../Row';
-import { KeyboardWrapper } from './stylex';
+import Row from '../Row';
+import KeyboardWrapper from './styles';
 
-export const KeyBoard = () => {
+function KeyBoard() {
   return (
     <KeyboardWrapper>
       <Row arrKeys={arr1} />
@@ -11,4 +10,6 @@ export const KeyBoard = () => {
       <Row arrKeys={arr3} />
     </KeyboardWrapper>
   );
-};
+}
+
+export default KeyBoard;

@@ -1,10 +1,18 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 import { KeyWrapper } from './styles';
 
-export const Key = (props) => {
+function Key(props) {
+  const { dataKey, letter } = props;
   return (
-    <KeyWrapper className='key' data-key={props.dataKey}>
-      {props.letter}
+    <KeyWrapper className="key" data-key={dataKey}>
+      {letter}
     </KeyWrapper>
   );
+}
+
+Key.propTypes = {
+  dataKey: PropTypes.string.isRequired,
+  letter: PropTypes.string.isRequired,
 };
+
+export default Key;

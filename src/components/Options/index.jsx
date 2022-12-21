@@ -1,21 +1,34 @@
-import React from 'react';
-import { OptionsWrapper } from './styles';
+import PropTypes from 'prop-types';
 import { BiRefresh } from 'react-icons/bi';
-import { GiStarAltar } from 'react-icons/gi';
-import { GiPlayButton } from 'react-icons/gi';
+import { GiStarAltar, GiPlayButton } from 'react-icons/gi';
 
-export const Options = (props) => {
+import OptionsWrapper from './styles';
+
+function Options(props) {
+  const { statusGame, handleSetupGame } = props;
   return (
-    <OptionsWrapper statusGame={props.statusGame}>
-      {props.statusGame ? (
-        <BiRefresh className='refreshGame' onClick={props.handleSetupGame} />
+    <OptionsWrapper statusGame={statusGame}>
+      {statusGame ? (
+        <BiRefresh className="refreshGame" onClick={handleSetupGame} />
       ) : (
-        <div onClick={props.handleSetupGame}>
+        <div
+          onClick={handleSetupGame}
+          onKeyDown={handleSetupGame}
+          role="button"
+          tabIndex={0}
+        >
           <GiPlayButton />
         </div>
       )}
-      <GiStarAltar className='statusGame' />
-      {props.statusGame ? 'Jugando' : 'Apagado'}
+      <GiStarAltar className="statusGame" />
+      {statusGame ? 'Jugando' : 'Apagado'}
     </OptionsWrapper>
   );
+}
+
+Options.propTypes = {
+  statusGame: PropTypes.string.isRequired,
+  handleSetupGame: PropTypes.func.isRequired,
 };
+
+export default Options;
