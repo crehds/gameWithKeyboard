@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { setupGame } from '../components/functions';
 
-export function useNextLevel(data = {}) {
-  // const [level, setLevels] = useState(config.levels);
+function useNextLevel(data = {}) {
   const [config, setConfig] = useState({ ...data });
 
   useEffect(() => {
@@ -13,3 +12,5 @@ export function useNextLevel(data = {}) {
 
   return [config, setConfig];
 }
+
+export default useNextLevel;
