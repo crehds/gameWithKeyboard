@@ -1,26 +1,20 @@
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 import './App.css';
-import { KeyBoard } from './components/Keyboard';
-import { Options } from './components/Options';
-import { GlobalStyle } from './GlobalStyles';
-import { useNextLevel } from './hooks/useNextLevel';
+import KeyBoard from './components/Keyboard';
+import Options from './components/Options';
+import GlobalStyle from './GlobalStyles';
+import useNextLevel from './hooks/useNextLevel';
 
 function App() {
-  // eslint-disable-next-line no-unused-vars
   const [config, setConfig] = useNextLevel();
-  useEffect(() => {
-    // setConfig.setPlaying(true);
-    handleSetupGame();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  async function handleSetupGame() {
+  const handleSetupGame = async () => {
     const lvlsPerDifficulty = {
       rookie: 10,
       normal: 14,
       expert: 18,
-      eidetic: 22
+      eidetic: 22,
     };
     const { value: difficulty } = await Swal.fire({
       title: 'Configuración del juego',
@@ -41,10 +35,16 @@ function App() {
         playing: true,
       });
     }
-  }
+
+    return 0;
+  };
+
+  useEffect(() => {
+    handleSetupGame();
+  }, []);
 
   return (
-    <div className='App'>
+    <div className="App">
       <Options handleSetupGame={handleSetupGame} statusGame={config.playing} />
       <GlobalStyle />
       <KeyBoard />
