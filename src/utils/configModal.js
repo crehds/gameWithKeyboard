@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
-import levelsPerDifficulty from './levelsPerDifficulty';
+import levelsPerDifficulty from '../gameSetup/levelsPerDifficulty';
 
-async function handleConfig() {
+async function configModal() {
   const { value: difficulty } = await Swal.fire({
     title: 'Configuración del juego',
     input: 'select',
@@ -29,4 +29,4 @@ async function handleConfig() {
   };
 }
 
-export default handleConfig;
+export default configModal;
