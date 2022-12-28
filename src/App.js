@@ -5,11 +5,11 @@ import GlobalStyle from './GlobalStyles';
 import useSetupGame from './hooks/useSetupGame';
 
 function App() {
-  const [config, updateConfig] = useSetupGame();
+  const [config, handleConfig] = useSetupGame();
 
   return (
     <div className="App">
-      <Options handleSetupGame={updateConfig} statusGame={config.playing} />
+      <Options handleSetupGame={handleConfig} statusGame={config.playing} />
       <GlobalStyle />
       <KeyBoard />
     </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import handleConfig from '../gameSetup/config';
 import initGame from '../gameSetup/init';
+import configModal from '../utils/configModal';
 
 const INITIAL_CONFIG = {
   levels: 0,
@@ -11,22 +11,22 @@ const INITIAL_CONFIG = {
 function useSetupGame() {
   const [config, setConfig] = useState(INITIAL_CONFIG);
 
-  const updateConfig = async () => {
-    const newConfig = await handleConfig();
-    if (newConfig.playing) {
-      setConfig(newConfig);
-    }
+  const handleConfig = async () => {
+    const newConfig = await configModal();
+    setConfig(newConfig);
   };
 
   useEffect(() => {
     if (config.playing) {
       initGame(config.levels, setConfig);
-    } else {
-      updateConfig();
     }
   }, [config]);
 
-  return [config, updateConfig];
+  useEffect(() => {
+    handleConfig();
+  }, []);
+
+  return [config, handleConfig];
 }
 
 export default useSetupGame;
