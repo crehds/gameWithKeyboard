@@ -6,19 +6,17 @@ function validateKeyCode({ keyCode, min, max }) {
   return keyCode > min || keyCode < max;
 }
 
-function useNextLevel(setIsPlaying) {
+function useNextLevel(setIsPlaying, levels) {
   const [currentLevel, setCurrentLevel] = useState(null);
   const [boardKeys, setBoardKeys] = useState([]);
-  const [levels, setLevels] = useState(0);
   const listener = useRef(null);
 
-  const handleNextLevel = ({ initialLevel, gameLevels }) => {
-    setCurrentLevel(initialLevel);
-    setLevels(gameLevels);
-    setBoardKeys(generarTeclas(gameLevels));
+  const handleStartLevel = () => {
+    setBoardKeys(generarTeclas(levels));
+    setCurrentLevel(0);
   };
 
-  const handleLevel = () => {
+  const handleNextLevel = () => {
     if (currentLevel === levels) {
       return sweetAlert.success();
     }
@@ -49,7 +47,7 @@ function useNextLevel(setIsPlaying) {
         return setTimeout(() => {
           sweetAlert.fail().then((ok) => {
             if (ok.value) {
-              return handleNextLevel({ initialLevel: 0, gameLevels: levels });
+              return handleStartLevel();
             }
 
             return setIsPlaying(false);
@@ -76,14 +74,14 @@ function useNextLevel(setIsPlaying) {
 
   useEffect(() => {
     if (currentLevel !== null) {
-      handleLevel();
+      handleNextLevel();
     }
     return () => {
       document.removeEventListener('keydown', listener.current);
     };
   }, [currentLevel]);
 
-  return handleNextLevel;
+  return handleStartLevel;
 }
 
 export default useNextLevel;
