@@ -1,57 +1,34 @@
 import { useEffect, useState } from 'react';
-import { generarTeclas } from '../gameSetup/utils';
 
 import configModal from '../utils/configModal';
-import nextLevel from './nextLevel';
-
-const INITIAL_CONFIG = {
-  levels: 0,
-  playing: false,
-  currentLevel: 0,
-  boardKeys: [],
-};
+import useNextLevel from './useNextLevel';
 
 function useSetupGame() {
-  const [config, setConfig] = useState({ ...INITIAL_CONFIG });
-
-  const handleLevel = (level, reset) => {
-    if (reset) {
-      const boardKeys = generarTeclas(config.levels);
-      return setConfig({ ...config, currentLevel: 0, boardKeys });
-    }
-
-    if (level) {
-      return setConfig({ ...config, currentLevel: level });
-    }
-
-    return setConfig({ ...INITIAL_CONFIG });
-  };
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [gameLevels, setGameLevels] = useState(0);
+  const handleNextLevel = useNextLevel(setIsPlaying);
 
   const handleConfig = async () => {
     const { levels, playing } = await configModal();
-    const boardKeys = generarTeclas(levels);
-    setConfig({
-      ...config, levels, playing, boardKeys,
-    });
+    setIsPlaying(playing);
+    setGameLevels(levels);
   };
 
   const handleGame = () => {
-    const { currentLevel, levels, boardKeys } = config;
-    nextLevel(currentLevel, levels, boardKeys, handleLevel);
+    handleNextLevel({ initialLevel: 0, gameLevels });
   };
 
   useEffect(() => {
-    const { playing } = config;
-    if (playing) {
+    if (isPlaying) {
       handleGame();
     }
-  }, [config]);
+  }, [isPlaying]);
 
   useEffect(() => {
     handleConfig();
   }, []);
 
-  return [config, handleConfig];
+  return [isPlaying, handleConfig];
 }
 
 export default useSetupGame;
