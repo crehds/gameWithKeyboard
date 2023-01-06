@@ -1,29 +1,7 @@
 import { useEffect, useState } from 'react';
 import { activate, generarTeclas } from '../gameSetup/utils';
+import { handleResult } from '../utils/game';
 import sweetAlert from '../utils/sweetAlert';
-
-function validateKeyCode({ keyCode, min, max }) {
-  return keyCode > min || keyCode < max;
-}
-
-function handleResult(keyCode, indexKey, currentLevel, currentKey) {
-  if (validateKeyCode({ keyCode, min: 65, max: 90 })) {
-    if (keyCode === currentKey) {
-      activate(currentKey, { success: true });
-
-      if (indexKey + 1 > currentLevel) {
-        return 'next';
-      }
-
-      return 'playing';
-    }
-
-    activate(keyCode, { fail: true });
-    return 'lose';
-  }
-
-  return null;
-}
 
 function useNextLevel(setIsPlaying, levels) {
   const [currentLevel, setCurrentLevel] = useState(null);
