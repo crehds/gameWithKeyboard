@@ -1,44 +1,51 @@
-import { useEffect, useState } from 'react';
-import { activate, generarTeclas } from '../gameSetup/utils';
-import { handleResult } from '../utils/game';
+import { useCallback, useEffect, useState } from 'react';
+import { generarTeclas } from '../gameSetup/utils';
+import { handleActivateKeys, handleKeyResult } from '../utils/game';
 import sweetAlert from '../utils/sweetAlert';
 
 function useNextLevel(setIsPlaying, levels) {
   const [currentLevel, setCurrentLevel] = useState(null);
   const [boardKeys, setBoardKeys] = useState([]);
-  let indexKey = 0;
-
-  const handleStartLevel = () => {
+  const handleStartLevel = useCallback(() => {
     setBoardKeys(generarTeclas(levels));
     setCurrentLevel(0);
+  }, [levels]);
+
+  let indexKey = 0;
+
+  const next = () => setTimeout(
+    () => setCurrentLevel(currentLevel + 1),
+    1000,
+  );
+
+  const lose = () => {
+    setCurrentLevel(null);
+    setTimeout(() => {
+      sweetAlert.fail().then((ok) => {
+        if (ok.value) {
+          return handleStartLevel();
+        }
+
+        return setIsPlaying(false);
+      });
+    }, 400);
   };
 
   function onKeyDown(ev) {
     const { keyCode } = ev;
     const currentKey = boardKeys[indexKey];
-    const result = handleResult(keyCode, indexKey, currentLevel, currentKey);
-    if (result) {
-      if (result === 'next') {
-        window.removeEventListener('keydown', onKeyDown);
-        return setTimeout(() => setCurrentLevel(currentLevel + 1), 1000);
-      }
+    const result = handleKeyResult(keyCode, indexKey, currentLevel, currentKey);
+    const action = {
+      next,
+      lose,
+    };
 
-      if (result === 'lose') {
-        window.removeEventListener('keydown', onKeyDown);
-        setCurrentLevel(null);
-
-        return setTimeout(() => {
-          sweetAlert.fail().then((ok) => {
-            if (ok.value) {
-              return handleStartLevel();
-            }
-
-            return setIsPlaying(false);
-          });
-        }, 400);
-      }
-      indexKey += 1;
+    if (action[result]) {
+      const fn = action[result];
+      return fn();
     }
+    indexKey += 1;
+
     return null;
   }
 
@@ -48,15 +55,7 @@ function useNextLevel(setIsPlaying, levels) {
     }
 
     sweetAlert.showLevel(currentLevel, levels);
-    for (let j = 0; j <= currentLevel; j += 1) {
-      setTimeout((keyboard) => activate(keyboard[j]), 1000 * (j + 1) + 1000, boardKeys);
-      if (j === currentLevel) {
-        setTimeout(
-          () => window.addEventListener('keydown', onKeyDown),
-          1000 * (j + 1) + 1400,
-        );
-      }
-    }
+    handleActivateKeys({ currentLevel, boardKeys, onKeyDown });
 
     return null;
   };
