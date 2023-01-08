@@ -55,7 +55,7 @@ function useNextLevel(setIsPlaying, levels) {
     }
 
     sweetAlert.showLevel(currentLevel, levels);
-    handleActivateKeys({ currentLevel, boardKeys, onKeyDown });
+    handleActivateKeys({ currentLevel, boardKeys, listener: onKeyDown });
 
     return null;
   };

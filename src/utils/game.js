@@ -23,12 +23,12 @@ export function handleKeyResult(keyCode, indexKey, currentLevel, currentKey) {
   return 'out';
 }
 
-export function handleActivateKeys({ currentLevel, boardKeys, onKeyDown }) {
+export function handleActivateKeys({ currentLevel, boardKeys, listener }) {
   for (let j = 0; j <= currentLevel; j += 1) {
     setTimeout((keyboard) => activate(keyboard[j]), 1000 * (j + 1) + 1000, boardKeys);
     if (j === currentLevel) {
       setTimeout(
-        () => window.addEventListener('keydown', onKeyDown),
+        () => window.addEventListener('keydown', listener),
         1000 * (j + 1) + 1400,
       );
     }
