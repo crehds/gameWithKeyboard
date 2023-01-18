@@ -3,7 +3,7 @@ import { generarTeclas } from '../gameSetup/utils';
 import { handleActivateKeys, handleKeyResult } from '../utils/game';
 import sweetAlert from '../utils/sweetAlert';
 
-function useNextLevel(setIsPlaying, levels) {
+function useNextLevel(stopGame, levels) {
   const [currentLevel, setCurrentLevel] = useState(null);
   const [boardKeys, setBoardKeys] = useState([]);
   const handleStartLevel = useCallback(() => {
@@ -26,7 +26,7 @@ function useNextLevel(setIsPlaying, levels) {
           return handleStartLevel();
         }
 
-        return setIsPlaying(false);
+        return stopGame();
       });
     }, 400);
   };

@@ -6,7 +6,13 @@ import useNextLevel from './useNextLevel';
 function useSetupGame() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameLevels, setGameLevels] = useState(0);
-  const handleStartLevel = useNextLevel(setIsPlaying, gameLevels);
+
+  const stopGame = () => {
+    setIsPlaying(false);
+    setGameLevels(0);
+  };
+
+  const handleStartLevel = useNextLevel(stopGame, gameLevels);
 
   const handleConfig = async () => {
     const { levels, playing } = await configModal();
@@ -14,13 +20,9 @@ function useSetupGame() {
     setGameLevels(levels);
   };
 
-  const handleGame = () => {
-    handleStartLevel();
-  };
-
   useEffect(() => {
     if (isPlaying) {
-      handleGame();
+      handleStartLevel();
     }
   }, [isPlaying]);
 
