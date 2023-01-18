@@ -1,32 +1,23 @@
-import { useCallback, useEffect, useState } from 'react';
-import { generarTeclas } from '../gameSetup/utils';
 import { handleActivateKeys, handleKeyResult } from '../utils/game';
 import sweetAlert from '../utils/sweetAlert';
 
-function useNextLevel(stopGame, levels) {
-  const [currentLevel, setCurrentLevel] = useState(null);
-  const [boardKeys, setBoardKeys] = useState([]);
-  const handleStartLevel = useCallback(() => {
-    setBoardKeys(generarTeclas(levels));
-    setCurrentLevel(0);
-  }, [levels]);
-
+function useNextLevel(setup, updateSetup) {
+  const { boardKeys, currentLevel, levels } = setup;
   let indexKey = 0;
 
   const next = () => setTimeout(
-    () => setCurrentLevel(currentLevel + 1),
+    () => updateSetup({ type: 'next' }),
     1000,
   );
 
   const lose = () => {
-    setCurrentLevel(null);
     setTimeout(() => {
       sweetAlert.fail().then((ok) => {
         if (ok.value) {
-          return handleStartLevel();
+          return updateSetup({ type: 'reset' });
         }
 
-        return stopGame();
+        return updateSetup({ type: 'lose' });
       });
     }, 400);
   };
@@ -60,16 +51,7 @@ function useNextLevel(stopGame, levels) {
     return null;
   };
 
-  useEffect(() => {
-    if (currentLevel !== null) {
-      handleNextLevel();
-    }
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [currentLevel]);
-
-  return handleStartLevel;
+  return [handleNextLevel, onKeyDown];
 }
 
 export default useNextLevel;

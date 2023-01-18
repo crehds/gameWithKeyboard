@@ -5,7 +5,8 @@ import GlobalStyle from './GlobalStyles';
 import useSetupGame from './hooks/useSetupGame';
 
 function App() {
-  const [isPlaying, handleConfig] = useSetupGame();
+  const [setup, handleConfig] = useSetupGame();
+  const { isPlaying } = setup;
 
   return (
     <div className="App">

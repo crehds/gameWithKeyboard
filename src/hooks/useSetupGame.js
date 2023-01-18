@@ -1,36 +1,76 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer } from 'react';
+import { generarTeclas } from '../gameSetup/utils';
 
 import configModal from '../utils/configModal';
 import useNextLevel from './useNextLevel';
 
+const INITIAL_SETUP = {
+  isPlaying: false,
+  levels: null,
+  boardKeys: null,
+  currentLevel: null,
+};
+
+const reducer = (state, action) => {
+  const {
+    currentLevel, levels,
+  } = state;
+  switch (action.type) {
+    case 'next': {
+      return { ...state, currentLevel: currentLevel + 1 };
+    }
+    case 'lose': {
+      return { ...INITIAL_SETUP };
+    }
+    case 'reset': {
+      const newKeys = generarTeclas(levels);
+      return { ...state, currentLevel: 0, boardKeys: newKeys };
+    }
+    case 'init': {
+      const { payload } = action;
+      return { ...payload };
+    }
+    default:
+      return state;
+  }
+};
+
 function useSetupGame() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [gameLevels, setGameLevels] = useState(0);
-
-  const stopGame = () => {
-    setIsPlaying(false);
-    setGameLevels(0);
-  };
-
-  const handleStartLevel = useNextLevel(stopGame, gameLevels);
+  const [setup, updateSetup] = useReducer(
+    reducer,
+    { ...INITIAL_SETUP },
+  );
+  const [handleNextLevel, onKeyDown] = useNextLevel(setup, updateSetup);
 
   const handleConfig = async () => {
     const { levels, playing } = await configModal();
-    setIsPlaying(playing);
-    setGameLevels(levels);
+    const boardKeys = generarTeclas(levels);
+    updateSetup({
+      type: 'init',
+      payload: {
+        levels,
+        isPlaying: playing,
+        currentLevel: 0,
+        boardKeys,
+      },
+    });
   };
 
   useEffect(() => {
+    const { isPlaying } = setup;
     if (isPlaying) {
-      handleStartLevel();
+      handleNextLevel();
     }
-  }, [isPlaying]);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [setup]);
 
   useEffect(() => {
     handleConfig();
   }, []);
 
-  return [isPlaying, handleConfig];
+  return [setup, handleConfig];
 }
 
 export default useSetupGame;
