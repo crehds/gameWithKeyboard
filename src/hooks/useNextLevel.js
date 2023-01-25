@@ -22,13 +22,20 @@ function useNextLevel(setup, updateSetup) {
     }, 400);
   };
 
+  const win = () => {
+    setTimeout(() => {
+      sweetAlert.success();
+    }, 400);
+  };
+
   function onKeyDown(ev) {
     const { keyCode } = ev;
     const currentKey = boardKeys[indexKey];
-    const result = handleKeyResult(keyCode, indexKey, currentLevel, currentKey);
+    const result = handleKeyResult(keyCode, indexKey, currentLevel, currentKey, levels);
     const action = {
       next,
       lose,
+      win,
     };
 
     if (action[result]) {
@@ -41,10 +48,6 @@ function useNextLevel(setup, updateSetup) {
   }
 
   const handleNextLevel = () => {
-    if (currentLevel === levels) {
-      return sweetAlert.success();
-    }
-
     sweetAlert.showLevel(currentLevel, levels);
     handleActivateKeys({ currentLevel, boardKeys, listener: onKeyDown });
 

@@ -4,10 +4,14 @@ export function validateKeyCode({ keyCode, min, max }) {
   return keyCode > min || keyCode < max;
 }
 
-export function handleKeyResult(keyCode, indexKey, currentLevel, currentKey) {
+export function handleKeyResult(keyCode, indexKey, currentLevel, currentKey, levels) {
   if (validateKeyCode({ keyCode, min: 65, max: 90 })) {
     if (keyCode === currentKey) {
       activate(currentKey, { success: true });
+
+      if (indexKey + 1 === levels) {
+        return 'win';
+      }
 
       if (indexKey + 1 > currentLevel) {
         return 'next';
