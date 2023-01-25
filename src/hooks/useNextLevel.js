@@ -1,32 +1,26 @@
 import { handleActivateKeys, handleKeyResult } from '../utils/game';
-import sweetAlert from '../utils/sweetAlert';
+import handleTimeOut from '../utils/handleTimeOut';
+import SweetAlert from '../utils/sweetAlert';
+
+const sweetAlert = SweetAlert();
 
 function useNextLevel(setup, updateSetup) {
   const { boardKeys, currentLevel, levels } = setup;
   let indexKey = 0;
 
-  const next = () => setTimeout(
-    () => updateSetup({ type: 'next' }),
-    1000,
-  );
+  const next = () => handleTimeOut({
+    cb: () => updateSetup({ type: 'next' }),
+    time: 1000,
+  });
 
-  const lose = () => {
-    setTimeout(() => {
-      sweetAlert.fail().then((ok) => {
-        if (ok.value) {
-          return updateSetup({ type: 'reset' });
-        }
+  const lose = () => handleTimeOut({
+    cb: () => sweetAlert.fail({
+      confirm: () => updateSetup({ type: 'reset' }),
+      cancel: () => updateSetup({ type: 'lose' }),
+    }),
+  });
 
-        return updateSetup({ type: 'lose' });
-      });
-    }, 400);
-  };
-
-  const win = () => {
-    setTimeout(() => {
-      sweetAlert.success();
-    }, 400);
-  };
+  const win = () => handleTimeOut({ cb: () => sweetAlert.success() });
 
   function onKeyDown(ev) {
     const { keyCode } = ev;
