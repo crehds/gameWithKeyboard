@@ -27,7 +27,7 @@ function Options(props) {
 }
 
 Options.propTypes = {
-  statusGame: PropTypes.string.isRequired,
+  statusGame: PropTypes.bool.isRequired,
   handleSetupGame: PropTypes.func.isRequired,
 };
 
