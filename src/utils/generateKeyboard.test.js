@@ -1,5 +1,5 @@
 import rows from './rows';
-import generateKeyBoard from './generateRows';
+import generateKeyBoard from './generateKeyBoard';
 
 describe('keyboard with rows', () => {
   const keyboard = generateKeyBoard(rows);
