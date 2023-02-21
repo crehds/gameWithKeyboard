@@ -5,22 +5,20 @@ export default (state, action) => {
   const {
     currentLevel, levels,
   } = state;
-  switch (action.type) {
-    case 'next': {
-      return { ...state, currentLevel: currentLevel + 1 };
-    }
-    case 'lose': {
-      return { ...initialSetup };
-    }
-    case 'reset': {
-      const newKeys = generateKeys(levels);
-      return { ...state, currentLevel: 0, boardKeys: newKeys };
-    }
-    case 'init': {
+
+  const actions = {
+    init: () => {
       const { payload } = action;
       return { ...payload };
-    }
-    default:
-      return state;
-  }
+    },
+    lose: () => ({ ...initialSetup }),
+    next: () => ({ ...state, currentLevel: currentLevel + 1 }),
+    reset: () => {
+      const newKeys = generateKeys(levels);
+      return { ...state, currentLevel: 0, boardKeys: newKeys };
+    },
+    default: () => ({ ...state }),
+  };
+
+  return (actions[action.type] || actions.default)();
 };
