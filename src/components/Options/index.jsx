@@ -13,13 +13,8 @@ function Options() {
       {isPlaying ? (
         <BiRefresh className="refreshGame" onClick={handleConfig} />
       ) : (
-        <div
-          onClick={handleConfig}
-          onKeyDown={handleConfig}
-          role="button"
-          tabIndex={0}
-        >
-          <GiPlayButton />
+        <div>
+          <GiPlayButton className="playingGame" onClick={handleConfig} />
         </div>
       )}
       <GiStarAltar className="statusGame" />

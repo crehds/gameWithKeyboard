@@ -35,29 +35,33 @@ const OptionsWrapper = styled.div`
   }
 
   & div {
-    position: relative;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 30px;
-    display: flex;
-    align-items: center;
-    margin: 0 5px;
-    &::before {
-      position: absolute;
-      content: '';
-      width: 100%;
-      height: 100%;
-      top: 0;
-      right: 0;
-      background: rgba(238, 211, 214, 0.89);
-      border-radius: inherit;
-      animation: ${Wave} 2s ease-out infinite;
-      animation-delay: 0.2s;
+      display: flex;
+      align-items: center;
+      margin: 0 5px;
+      position: relative;
+      border-radius: 50%;
+      cursor: pointer;
+      &::after {
+          position: absolute;
+          content: '';
+          width: 100%;
+          height: 100%;
+          top: 0;
+          right: 0;
+          background: rgba(238, 211, 214, 0.89);
+          border-radius: inherit;
+          animation: ${Wave} 2s ease-out infinite;
+          animation-delay: 0.2s;
+          z-index: -1000;
+        }
+      .playingGame {
+        z-index: 4;
+        font-size: 30px;
+        &:hover {
+          fill: white;
+        }
+      }
     }
-    &:hover > svg {
-      fill: white;
-    }
-  }
 `;
 
 export default OptionsWrapper;
