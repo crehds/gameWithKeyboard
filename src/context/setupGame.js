@@ -6,42 +6,13 @@ import { generateKeys } from '../gameSetup/utils';
 
 import configModal from '../utils/configModal';
 import useNextLevel from '../hooks/useNextLevel';
+import reducer from './reducer';
+import initialSetup from './initialSetup';
 
 const SetupGameContext = createContext();
 
-const INITIAL_SETUP = {
-  isPlaying: false,
-  levels: null,
-  boardKeys: null,
-  currentLevel: null,
-};
-
-const reducer = (state, action) => {
-  const {
-    currentLevel, levels,
-  } = state;
-  switch (action.type) {
-    case 'next': {
-      return { ...state, currentLevel: currentLevel + 1 };
-    }
-    case 'lose': {
-      return { ...INITIAL_SETUP };
-    }
-    case 'reset': {
-      const newKeys = generateKeys(levels);
-      return { ...state, currentLevel: 0, boardKeys: newKeys };
-    }
-    case 'init': {
-      const { payload } = action;
-      return { ...payload };
-    }
-    default:
-      return state;
-  }
-};
-
 export function SetupGameProvider({ children }) {
-  const [setup, updateSetup] = useReducer(reducer, { ...INITIAL_SETUP });
+  const [setup, updateSetup] = useReducer(reducer, { ...initialSetup });
 
   const [handleNextLevel, onKeyDown] = useNextLevel(setup, updateSetup);
 
