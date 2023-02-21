@@ -1,8 +1,13 @@
-import { useEffect, useReducer } from 'react';
+import {
+  useReducer, createContext, useContext, useMemo, useEffect,
+} from 'react';
+import PropTypes from 'prop-types';
 import { generateKeys } from '../gameSetup/utils';
 
 import configModal from '../utils/configModal';
-import useNextLevel from './useNextLevel';
+import useNextLevel from '../hooks/useNextLevel';
+
+const SetupGameContext = createContext();
 
 const INITIAL_SETUP = {
   isPlaying: false,
@@ -35,12 +40,20 @@ const reducer = (state, action) => {
   }
 };
 
-function useSetupGame() {
-  const [setup, updateSetup] = useReducer(
-    reducer,
-    { ...INITIAL_SETUP },
-  );
+export function SetupGameProvider({ children }) {
+  const [setup, updateSetup] = useReducer(reducer, { ...INITIAL_SETUP });
+
   const [handleNextLevel, onKeyDown] = useNextLevel(setup, updateSetup);
+
+  useEffect(() => {
+    const { isPlaying } = setup;
+    if (isPlaying) {
+      handleNextLevel();
+    }
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [setup]);
 
   const handleConfig = async () => {
     const { levels, playing } = await configModal();
@@ -57,20 +70,24 @@ function useSetupGame() {
   };
 
   useEffect(() => {
-    const { isPlaying } = setup;
-    if (isPlaying) {
-      handleNextLevel();
-    }
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [setup]);
-
-  useEffect(() => {
     handleConfig();
   }, []);
 
-  return [setup, handleConfig];
+  const state = useMemo(() => ({
+    setup, handleConfig,
+  }), [setup]);
+
+  return (
+    <SetupGameContext.Provider value={state}>
+      {children}
+    </SetupGameContext.Provider>
+  );
 }
 
-export default useSetupGame;
+SetupGameProvider.propTypes = {
+  children: PropTypes.element.isRequired,
+};
+
+export function useSetupGame() {
+  return useContext(SetupGameContext);
+}
