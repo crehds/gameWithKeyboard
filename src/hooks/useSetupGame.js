@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from 'react';
-import { generarTeclas } from '../gameSetup/utils';
+import { generateKeys } from '../gameSetup/utils';
 
 import configModal from '../utils/configModal';
 import useNextLevel from './useNextLevel';
@@ -23,7 +23,7 @@ const reducer = (state, action) => {
       return { ...INITIAL_SETUP };
     }
     case 'reset': {
-      const newKeys = generarTeclas(levels);
+      const newKeys = generateKeys(levels);
       return { ...state, currentLevel: 0, boardKeys: newKeys };
     }
     case 'init': {
@@ -44,7 +44,7 @@ function useSetupGame() {
 
   const handleConfig = async () => {
     const { levels, playing } = await configModal();
-    const boardKeys = generarTeclas(levels);
+    const boardKeys = generateKeys(levels);
     updateSetup({
       type: 'init',
       payload: {
