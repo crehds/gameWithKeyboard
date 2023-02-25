@@ -1,19 +1,25 @@
 import Swal from 'sweetalert2';
 
-function sweetAlert() {
+function SweetAlert() {
   const success = () => Swal.fire({
     title: 'Ganaste!',
     text: 'Tu memoria es de otro nivel',
     icon: 'success',
   });
 
-  const fail = () => Swal.fire({
+  const fail = ({ confirm, cancel }) => Swal.fire({
     title: 'PARA ESO?, entrena la memoria',
     text: 'Otra oportunidad?',
     icon: 'error',
     showCancelButton: true,
     confirmButtonText: 'Sí',
     cancelButtonText: 'No',
+  }).then((ok) => {
+    if (ok.value) {
+      return confirm();
+    }
+
+    return cancel();
   });
 
   const warning = () => Swal.fire({
@@ -34,4 +40,4 @@ function sweetAlert() {
   };
 }
 
-export default sweetAlert();
+export default SweetAlert;

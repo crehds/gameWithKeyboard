@@ -1,4 +1,4 @@
-import { arr1, arr2, arr3 } from '../../arrKeys';
+import { arr1, arr2, arr3 } from './keyboard';
 import Row from '../Row';
 import KeyboardWrapper from './styles';
 

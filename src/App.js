@@ -1,18 +1,18 @@
 import './App.css';
 import KeyBoard from './components/Keyboard';
 import Options from './components/Options';
+import { SetupGameProvider } from './context/setupGame';
 import GlobalStyle from './GlobalStyles';
-import useSetupGame from './hooks/useSetupGame';
 
 function App() {
-  const [config, handleConfig] = useSetupGame();
-
   return (
-    <div className="App">
-      <Options handleSetupGame={handleConfig} statusGame={config.playing} />
-      <GlobalStyle />
-      <KeyBoard />
-    </div>
+    <SetupGameProvider>
+      <div className="App">
+        <Options />
+        <GlobalStyle />
+        <KeyBoard />
+      </div>
+    </SetupGameProvider>
   );
 }
 
