@@ -13,15 +13,9 @@ import {
   isPlaying,
   keyStatus,
   START,
+  NEXT_ROUND,
   RETRY,
 } from './gameMachine';
-import { createGameMode } from './gameMode';
-
-const EXPERT_LENGTH = createGameMode('expert').rounds;
-
-function buildSequence(length) {
-  return Array.from({ length }, (_, index) => String.fromCharCode(65 + (index % 26)));
-}
 
 describe('gameMachine', () => {
   describe('initialState', () => {
@@ -53,14 +47,13 @@ describe('gameMachine', () => {
   });
 
   describe('START', () => {
-    it('moves from configuring to showing with round 0 and showIndex -1', () => {
+    it('moves from configuring to showing with a one-letter sequence at round 0', () => {
       const state = { ...initialState, phase: 'configuring' };
-      const sequence = buildSequence(EXPERT_LENGTH);
-      const next = gameReducer(state, start('expert', sequence));
+      const next = gameReducer(state, start('expert', 'A'));
       expect(next).toMatchObject({
         phase: 'showing',
         modeId: 'expert',
-        sequence,
+        sequence: ['A'],
         round: 0,
         showIndex: -1,
         inputIndex: 0,
@@ -69,22 +62,19 @@ describe('gameMachine', () => {
 
     it('is ignored outside configuring', () => {
       const state = { ...initialState, phase: 'idle' };
-      expect(gameReducer(state, start('expert', ['A']))).toBe(state);
+      expect(gameReducer(state, start('expert', 'A'))).toBe(state);
     });
 
     it('is ignored when the mode is unknown', () => {
       const state = { ...initialState, phase: 'configuring' };
-      expect(gameReducer(state, start('legendary', buildSequence(EXPERT_LENGTH)))).toBe(state);
+      expect(gameReducer(state, start('legendary', 'A'))).toBe(state);
     });
 
-    it('is ignored when the sequence length does not match the mode', () => {
-      const state = { ...initialState, phase: 'configuring' };
-      expect(gameReducer(state, start('expert', buildSequence(EXPERT_LENGTH - 1)))).toBe(state);
-    });
-
-    it('is ignored when the action carries no sequence', () => {
+    it('is ignored when the first letter is missing or not a letter', () => {
       const state = { ...initialState, phase: 'configuring' };
       expect(gameReducer(state, start('expert', undefined))).toBe(state);
+      expect(gameReducer(state, start('expert', '1'))).toBe(state);
+      expect(gameReducer(state, start('expert', 'AB'))).toBe(state);
       expect(gameReducer(state, { type: START })).toBe(state);
     });
   });
@@ -145,12 +135,30 @@ describe('gameMachine', () => {
       expect(next.inputIndex).toBe(2);
     });
 
-    it('wins when the last round is completed', () => {
+    it('wins when the last round of a fixed-length mode is completed', () => {
       const lastRoundState = {
-        ...initialState, phase: 'awaitingInput', sequence: ['A', 'B'], round: 1, inputIndex: 1,
+        ...initialState,
+        phase: 'awaitingInput',
+        modeId: 'rookie',
+        sequence: Array.from({ length: 10 }, () => 'A'),
+        round: 9,
+        inputIndex: 9,
       };
-      const next = gameReducer(lastRoundState, pressKey('B'));
+      const next = gameReducer(lastRoundState, pressKey('A'));
       expect(next.phase).toBe('won');
+    });
+
+    it('never wins on endless, no matter how many rounds are completed', () => {
+      const state = {
+        ...initialState,
+        phase: 'awaitingInput',
+        modeId: 'endless',
+        sequence: Array.from({ length: 50 }, () => 'A'),
+        round: 49,
+        inputIndex: 49,
+      };
+      const next = gameReducer(state, pressKey('A'));
+      expect(next.phase).toBe('roundComplete');
     });
 
     it('loses on a wrong letter and flashes it as fail (wrong letter ends the game)', () => {
@@ -190,51 +198,53 @@ describe('gameMachine', () => {
   });
 
   describe('NEXT_ROUND', () => {
-    it('moves from roundComplete to showing with the round incremented', () => {
+    it('moves from roundComplete to showing, appending the new letter and incrementing the round', () => {
       const state = {
-        ...initialState, phase: 'roundComplete', round: 0, showIndex: 2, inputIndex: 1,
+        ...initialState, phase: 'roundComplete', sequence: ['A'], round: 0, showIndex: 2, inputIndex: 1,
       };
-      const next = gameReducer(state, nextRound());
+      const next = gameReducer(state, nextRound('B'));
       expect(next).toMatchObject({
-        phase: 'showing', round: 1, showIndex: -1, inputIndex: 0,
+        phase: 'showing', sequence: ['A', 'B'], round: 1, showIndex: -1, inputIndex: 0,
       });
     });
 
     it('is ignored outside roundComplete', () => {
       const state = { ...initialState, phase: 'showing' };
-      expect(gameReducer(state, nextRound())).toBe(state);
+      expect(gameReducer(state, nextRound('B'))).toBe(state);
+    });
+
+    it('is ignored when the next letter is missing or not a letter', () => {
+      const state = {
+        ...initialState, phase: 'roundComplete', sequence: ['A'], round: 0,
+      };
+      expect(gameReducer(state, nextRound(undefined))).toBe(state);
+      expect(gameReducer(state, nextRound('2'))).toBe(state);
+      expect(gameReducer(state, { type: NEXT_ROUND })).toBe(state);
     });
   });
 
   describe('RETRY', () => {
-    it('restarts the same difficulty with a new sequence from round 0', () => {
+    it('restarts the same mode with a fresh one-letter sequence from round 0', () => {
       const state = {
-        ...initialState, phase: 'lost', modeId: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
+        ...initialState, phase: 'lost', modeId: 'expert', sequence: ['A', 'B', 'C', 'D'], round: 3,
       };
-      const newSequence = buildSequence(EXPERT_LENGTH).reverse();
-      const next = gameReducer(state, retry(newSequence));
+      const next = gameReducer(state, retry('Z'));
       expect(next).toMatchObject({
-        phase: 'showing', modeId: 'expert', sequence: newSequence, round: 0, showIndex: -1, inputIndex: 0,
+        phase: 'showing', modeId: 'expert', sequence: ['Z'], round: 0, showIndex: -1, inputIndex: 0,
       });
     });
 
     it('is ignored outside lost', () => {
       const state = { ...initialState, phase: 'won' };
-      expect(gameReducer(state, retry(['A']))).toBe(state);
+      expect(gameReducer(state, retry('A'))).toBe(state);
     });
 
-    it('is ignored when the new sequence length does not match the mode', () => {
+    it('is ignored when the first letter is missing or not a letter', () => {
       const state = {
-        ...initialState, phase: 'lost', modeId: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
-      };
-      expect(gameReducer(state, retry(buildSequence(EXPERT_LENGTH - 1)))).toBe(state);
-    });
-
-    it('is ignored when the action carries no sequence', () => {
-      const state = {
-        ...initialState, phase: 'lost', modeId: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
+        ...initialState, phase: 'lost', modeId: 'expert', sequence: ['A', 'B', 'C'], round: 2,
       };
       expect(gameReducer(state, retry(undefined))).toBe(state);
+      expect(gameReducer(state, retry('9'))).toBe(state);
       expect(gameReducer(state, { type: RETRY })).toBe(state);
     });
   });

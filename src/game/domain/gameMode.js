@@ -9,9 +9,12 @@ const PROFILES = {
   normal: { rounds: 14, pace: { base: 950, decay: 0.95, min: 450 } },
   expert: { rounds: 18, pace: { base: 900, decay: 0.94, min: 380 } },
   eidetic: { rounds: 22, pace: { base: 800, decay: 0.92, min: 300 } },
+  endless: {
+    rounds: Infinity, pace: { base: 900, decay: 0.95, min: 300 }, isEndless: true,
+  },
 };
 
-export const MODE_IDS = ['rookie', 'normal', 'expert', 'eidetic'];
+export const MODE_IDS = ['rookie', 'normal', 'expert', 'eidetic', 'endless'];
 
 export const DEFAULT_MODE = 'normal';
 
@@ -22,11 +25,14 @@ export function isGameMode(id) {
 export function createGameMode(id) {
   if (!isGameMode(id)) return null;
 
-  const { rounds, pace } = PROFILES[id];
+  const {
+    rounds, pace, isEndless = false,
+  } = PROFILES[id];
 
   return Object.freeze({
     id,
     rounds,
+    isEndless,
     isFinalRound(round) {
       return round === rounds - 1;
     },

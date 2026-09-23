@@ -1,5 +1,5 @@
 import { isLetter } from './letters';
-import { DEFAULT_MODE, createGameMode } from './gameMode';
+import { DEFAULT_MODE, isGameMode, createGameMode } from './gameMode';
 
 export const OPEN_SETUP = 'OPEN_SETUP';
 export const CANCEL_SETUP = 'CANCEL_SETUP';
@@ -13,12 +13,12 @@ export const QUIT = 'QUIT';
 
 export const openSetup = () => ({ type: OPEN_SETUP });
 export const cancelSetup = () => ({ type: CANCEL_SETUP });
-export const start = (modeId, sequence) => ({ type: START, payload: { modeId, sequence } });
+export const start = (modeId, firstLetter) => ({ type: START, payload: { modeId, firstLetter } });
 export const showNext = () => ({ type: SHOW_NEXT });
 export const clearHighlight = () => ({ type: CLEAR_HIGHLIGHT });
 export const pressKey = (letter) => ({ type: KEY, payload: { letter } });
-export const nextRound = () => ({ type: NEXT_ROUND });
-export const retry = (sequence) => ({ type: RETRY, payload: { sequence } });
+export const nextRound = (nextLetter) => ({ type: NEXT_ROUND, payload: { nextLetter } });
+export const retry = (firstLetter) => ({ type: RETRY, payload: { firstLetter } });
 export const quit = () => ({ type: QUIT });
 
 export const initialState = {
@@ -55,20 +55,15 @@ function handleCancelSetup(state) {
   return { ...state, phase: 'idle' };
 }
 
-function fitsMode(sequence, modeId) {
-  const mode = createGameMode(modeId);
-  return Boolean(mode) && Array.isArray(sequence) && sequence.length === mode.rounds;
-}
-
 function handleStart(state, action) {
   if (state.phase !== 'configuring') return state;
-  const { modeId, sequence } = action.payload || {};
-  if (!fitsMode(sequence, modeId)) return state;
+  const { modeId, firstLetter } = action.payload || {};
+  if (!isGameMode(modeId) || !isLetter(firstLetter)) return state;
   return {
     ...state,
     phase: 'showing',
     modeId,
-    sequence,
+    sequence: [firstLetter],
     round: 0,
     inputIndex: 0,
     showIndex: -1,
@@ -110,7 +105,8 @@ function handleKey(state, action) {
     return { ...state, inputIndex: nextInputIndex, highlight: { letter, kind: 'success' } };
   }
 
-  const isLastRound = state.round === state.sequence.length - 1;
+  const mode = createGameMode(state.modeId);
+  const isLastRound = Boolean(mode) && mode.isFinalRound(state.round);
   return {
     ...state,
     inputIndex: nextInputIndex,
@@ -119,11 +115,14 @@ function handleKey(state, action) {
   };
 }
 
-function handleNextRound(state) {
+function handleNextRound(state, action) {
   if (state.phase !== 'roundComplete') return state;
+  const { nextLetter } = action.payload || {};
+  if (!isLetter(nextLetter)) return state;
   return {
     ...state,
     phase: 'showing',
+    sequence: [...state.sequence, nextLetter],
     round: state.round + 1,
     showIndex: -1,
     inputIndex: 0,
@@ -133,12 +132,12 @@ function handleNextRound(state) {
 
 function handleRetry(state, action) {
   if (state.phase !== 'lost') return state;
-  const { sequence } = action.payload || {};
-  if (!fitsMode(sequence, state.modeId)) return state;
+  const { firstLetter } = action.payload || {};
+  if (!isLetter(firstLetter)) return state;
   return {
     ...state,
     phase: 'showing',
-    sequence,
+    sequence: [firstLetter],
     round: 0,
     showIndex: -1,
     inputIndex: 0,

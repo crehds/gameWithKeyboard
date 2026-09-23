@@ -10,12 +10,29 @@ describe('DifficultyDialog', () => {
     expect(screen.getByLabelText('Selecciona la dificultad')).toBeInTheDocument();
   });
 
-  it('offers the four difficulties with their level counts', () => {
+  it('offers the four fixed difficulties with their level counts', () => {
     render(<DifficultyDialog onStart={() => {}} onCancel={() => {}} />);
     expect(screen.getByText('Novato - 10 niveles')).toBeInTheDocument();
     expect(screen.getByText('Normal - 14 niveles')).toBeInTheDocument();
     expect(screen.getByText('Experto - 18 niveles')).toBeInTheDocument();
     expect(screen.getByText('Eidético - 22 niveles')).toBeInTheDocument();
+  });
+
+  it('offers an endless option last', () => {
+    render(<DifficultyDialog onStart={() => {}} onCancel={() => {}} />);
+    const options = screen.getAllByRole('option');
+    expect(options[options.length - 1]).toHaveTextContent('Infinito - sin límite');
+  });
+
+  it('starts the game with the endless mode when selected', async () => {
+    const user = userEvent.setup();
+    const onStart = vi.fn();
+    render(<DifficultyDialog onStart={onStart} onCancel={() => {}} />);
+
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'endless');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    expect(onStart).toHaveBeenCalledWith('endless');
   });
 
   it('defaults to normal', () => {

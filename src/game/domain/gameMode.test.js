@@ -3,8 +3,8 @@ import {
 } from './gameMode';
 
 describe('gameMode', () => {
-  it('orders mode ids from easiest to hardest', () => {
-    expect(MODE_IDS).toEqual(['rookie', 'normal', 'expert', 'eidetic']);
+  it('orders mode ids from easiest to hardest, with endless last', () => {
+    expect(MODE_IDS).toEqual(['rookie', 'normal', 'expert', 'eidetic', 'endless']);
   });
 
   it('defaults to normal', () => {
@@ -52,6 +52,12 @@ describe('gameMode', () => {
       expect(Object.isFrozen(createGameMode('rookie'))).toBe(true);
     });
 
+    it('is not endless for the four fixed-length modes', () => {
+      ['rookie', 'normal', 'expert', 'eidetic'].forEach((id) => {
+        expect(createGameMode(id).isEndless).toBe(false);
+      });
+    });
+
     describe('isFinalRound', () => {
       it('is false before the last round index', () => {
         const mode = createGameMode('rookie');
@@ -64,12 +70,31 @@ describe('gameMode', () => {
       });
     });
 
+    describe('endless', () => {
+      const mode = createGameMode('endless');
+
+      it('has no round limit', () => {
+        expect(mode.rounds).toBe(Infinity);
+      });
+
+      it('is flagged as endless', () => {
+        expect(mode.isEndless).toBe(true);
+      });
+
+      it('never reaches a final round', () => {
+        [0, 1, 49, 10000].forEach((round) => {
+          expect(mode.isFinalRound(round)).toBe(false);
+        });
+      });
+    });
+
     describe('paceForRound', () => {
       const EXPECTED = {
         rookie: { base: 1000, min: 500 },
         normal: { base: 950, min: 450 },
         expert: { base: 900, min: 380 },
         eidetic: { base: 800, min: 300 },
+        endless: { base: 900, min: 300 },
       };
 
       MODE_IDS.forEach((id) => {

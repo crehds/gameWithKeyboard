@@ -50,14 +50,13 @@ describe('useGame', () => {
     expect(random).not.toHaveBeenCalled();
   });
 
-  it('starting a difficulty moves to showing with a freshly generated sequence', () => {
+  it('starting a mode moves to showing with a one-letter sequence from random()', () => {
     const { result } = renderHook(() => useGame(fixedRandom));
 
     act(() => result.current.start('rookie'));
 
     expect(result.current.state.phase).toBe('showing');
-    expect(result.current.state.sequence).toHaveLength(10);
-    expect(result.current.state.sequence.every((letter) => letter === 'A')).toBe(true);
+    expect(result.current.state.sequence).toEqual(['A']);
   });
 
   it('flashes the first letter after the round-intro delay', () => {
@@ -109,6 +108,7 @@ describe('useGame', () => {
 
     expect(result.current.state.phase).toBe('showing');
     expect(result.current.state.round).toBe(1);
+    expect(result.current.state.sequence).toEqual(['A', 'A']);
   });
 
   it('ignores non-letter presses', () => {

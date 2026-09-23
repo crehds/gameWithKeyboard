@@ -8,6 +8,7 @@ const LABELS = {
   normal: 'Normal - 14 niveles',
   expert: 'Experto - 18 niveles',
   eidetic: 'Eidético - 22 niveles',
+  endless: 'Infinito - sin límite',
 };
 
 function DifficultyDialog({ onStart, onCancel }) {

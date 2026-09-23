@@ -12,7 +12,7 @@ import {
   retry,
   quit,
 } from '../domain/gameMachine';
-import { generateSequence } from '../domain/letters';
+import { randomLetter } from '../domain/letters';
 import { createGameMode } from '../domain/gameMode';
 import {
   ROUND_INTRO_DELAY,
@@ -57,23 +57,24 @@ export default function useGame(random = Math.random) {
   useEffect(() => {
     if (phase !== 'roundComplete') return undefined;
 
-    const timerId = setTimeout(() => dispatch(nextRound()), ROUND_COMPLETE_DELAY);
+    const timerId = setTimeout(
+      () => dispatch(nextRound(randomLetter(random))),
+      ROUND_COMPLETE_DELAY,
+    );
     return () => clearTimeout(timerId);
-  }, [phase]);
+  }, [phase, random]);
 
   const openSetupAction = useCallback(() => dispatch(openSetup()), []);
   const cancelSetupAction = useCallback(() => dispatch(cancelSetup()), []);
 
   const startAction = useCallback((selectedModeId) => {
-    const selectedMode = createGameMode(selectedModeId);
-    if (!selectedMode) return;
-    dispatch(start(selectedModeId, generateSequence(selectedMode.rounds, random)));
+    if (!createGameMode(selectedModeId)) return;
+    dispatch(start(selectedModeId, randomLetter(random)));
   }, [random]);
 
   const retryAction = useCallback(() => {
-    if (!mode) return;
-    dispatch(retry(generateSequence(mode.rounds, random)));
-  }, [random, mode]);
+    dispatch(retry(randomLetter(random)));
+  }, [random]);
 
   const quitAction = useCallback(() => dispatch(quit()), []);
   const pressLetterAction = useCallback((letter) => dispatch(pressKey(letter)), []);

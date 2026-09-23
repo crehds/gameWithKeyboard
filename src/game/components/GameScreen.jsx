@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import useGame from '../hooks/useGame';
 import useLetterInput from '../hooks/useLetterInput';
 import { isPlaying, keyStatus } from '../domain/gameMachine';
+import { createGameMode } from '../domain/gameMode';
 import StatusBar from './StatusBar';
 import Keyboard from './Keyboard';
 import DifficultyDialog from './dialogs/DifficultyDialog';
@@ -16,8 +17,9 @@ function GameScreen({ random }) {
   useLetterInput(pressLetter);
 
   const {
-    phase, sequence, round, showIndex,
+    phase, round, showIndex, modeId,
   } = state;
+  const mode = createGameMode(modeId);
 
   return (
     <>
@@ -27,7 +29,7 @@ function GameScreen({ random }) {
         <DifficultyDialog onStart={start} onCancel={cancelSetup} />
       )}
       {phase === 'showing' && showIndex === -1 && (
-        <RoundBanner round={round} total={sequence.length} />
+        <RoundBanner round={round} total={mode ? mode.rounds : round + 1} />
       )}
       {(phase === 'won' || phase === 'lost') && (
         <ResultDialog result={phase} onRetry={retry} onQuit={quit} />

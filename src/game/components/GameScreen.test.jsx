@@ -31,18 +31,31 @@ async function playRoundsToVictory(gameUser, round, totalRounds, modeId = 'exper
   }
 }
 
-// Yields a fixed random() value per "generation" of generateSequence calls
-// (each generation being `generationLength` calls long), so the sequence
-// produced by start() differs deterministically from the one produced by a
-// later retry().
-function makeGenerationalRandom(generationLength, valuesPerGeneration) {
-  let calls = 0;
+// Yields one fixed value per random() call, in order (repeating the last
+// value once exhausted), so successive letters (start, each next round,
+// retry) can be made to differ deterministically.
+function makeSequentialRandom(values) {
+  let index = 0;
   return () => {
-    const generationIndex = Math.floor(calls / generationLength);
-    calls += 1;
-    const value = valuesPerGeneration[generationIndex];
-    return value === undefined ? valuesPerGeneration[valuesPerGeneration.length - 1] : value;
+    const value = values[index] === undefined ? values[values.length - 1] : values[index];
+    index += 1;
+    return value;
   };
+}
+
+// Plays `roundsToPlay` rounds correctly (letters are all 'A' with a fixed
+// random() of 0), then presses a wrong key on the following round to end the
+// game. Recursion keeps this sequential without an eslint-disabled
+// await-in-loop.
+async function playRoundsThenFail(gameUser, round, roundsToPlay, modeId) {
+  advanceToAwaitingInput(round, modeId);
+  if (round < roundsToPlay) {
+    await gameUser.keyboard('a'.repeat(round + 1));
+    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    await playRoundsThenFail(gameUser, round + 1, roundsToPlay, modeId);
+  } else {
+    await gameUser.keyboard('b');
+  }
 }
 
 describe('GameScreen integration', () => {
@@ -121,9 +134,9 @@ describe('GameScreen integration', () => {
   });
 
   it('retries with a newly generated sequence while keeping the same difficulty', async () => {
-    // First generation (initial sequence) is all 'A'; second generation
-    // (after retry) is all 'B'.
-    const random = makeGenerationalRandom(createGameMode('expert').rounds, [0, 0.05]);
+    // First random() call (start's first letter) yields 'A'; the second
+    // (retry's first letter) yields 'B'.
+    const random = makeSequentialRandom([0, 0.05]);
 
     render(
       <React.StrictMode>
@@ -149,5 +162,25 @@ describe('GameScreen integration', () => {
 
     advanceToAwaitingInput(0);
     expect(screen.getByText('B')).toHaveAttribute('data-status', 'active');
+  });
+
+  it('plays endless mode: the banner shows no total, and a wrong key still ends the game', async () => {
+    const random = () => 0; // always 'A'
+
+    render(
+      <React.StrictMode>
+        <GameScreen random={random} />
+      </React.StrictMode>,
+    );
+
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'endless');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('Nivel 1');
+    expect(screen.getByRole('status')).not.toHaveTextContent('de');
+
+    await playRoundsThenFail(user, 0, 3, 'endless');
+
+    expect(screen.getByText('PARA ESO?, entrena la memoria')).toBeInTheDocument();
   });
 });
