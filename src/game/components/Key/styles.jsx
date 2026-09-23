@@ -38,6 +38,6 @@ export const KeyWrapper = styled.div`
   text-transform: uppercase;
   text-align: center;
   font-size: 24px;
-  transition: all ease 0.5s;
+  transition: all ease 0.1s;
   ${({ $status }) => STATUS_STYLES[$status] || ''}
 `;

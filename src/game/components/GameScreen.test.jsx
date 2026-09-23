@@ -5,14 +5,15 @@ import {
 import userEvent from '@testing-library/user-event';
 import GameScreen from './GameScreen';
 import {
-  ROUND_INTRO_DELAY, FLASH_INTERVAL, INPUT_READY_DELAY, ROUND_COMPLETE_DELAY,
+  ROUND_INTRO_DELAY, INPUT_READY_DELAY, ROUND_COMPLETE_DELAY,
 } from '../domain/timing';
 import { createGameMode } from '../domain/gameMode';
 
-function advanceToAwaitingInput(round) {
+function advanceToAwaitingInput(round, modeId = 'expert') {
   act(() => { vi.advanceTimersByTime(ROUND_INTRO_DELAY); });
+  const { flashInterval } = createGameMode(modeId).paceForRound(round);
   for (let i = 1; i <= round; i += 1) {
-    act(() => { vi.advanceTimersByTime(FLASH_INTERVAL); });
+    act(() => { vi.advanceTimersByTime(flashInterval); });
   }
   act(() => { vi.advanceTimersByTime(INPUT_READY_DELAY); });
 }
@@ -21,12 +22,12 @@ function advanceToAwaitingInput(round) {
 // random() of 0), then, unless it is the last round, advances past the
 // round-complete delay before recursing into the next round. Recursion keeps
 // this sequential without an eslint-disabled await-in-loop.
-async function playRoundsToVictory(gameUser, round, totalRounds) {
-  advanceToAwaitingInput(round);
+async function playRoundsToVictory(gameUser, round, totalRounds, modeId = 'expert') {
+  advanceToAwaitingInput(round, modeId);
   await gameUser.keyboard('a'.repeat(round + 1));
   if (round < totalRounds - 1) {
     act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
-    await playRoundsToVictory(gameUser, round + 1, totalRounds);
+    await playRoundsToVictory(gameUser, round + 1, totalRounds, modeId);
   }
 }
 
@@ -109,7 +110,7 @@ describe('GameScreen integration', () => {
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'rookie');
     await user.click(screen.getByRole('button', { name: 'Jugar' }));
 
-    await playRoundsToVictory(user, 0, totalRounds);
+    await playRoundsToVictory(user, 0, totalRounds, 'rookie');
 
     expect(screen.getByText('Ganaste!')).toBeInTheDocument();
 

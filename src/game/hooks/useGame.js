@@ -16,9 +16,7 @@ import { generateSequence } from '../domain/letters';
 import { createGameMode } from '../domain/gameMode';
 import {
   ROUND_INTRO_DELAY,
-  FLASH_INTERVAL,
   INPUT_READY_DELAY,
-  SHOW_HIGHLIGHT_DURATION,
   FEEDBACK_HIGHLIGHT_DURATION,
   ROUND_COMPLETE_DELAY,
 } from '../domain/timing';
@@ -29,10 +27,15 @@ export default function useGame(random = Math.random) {
     phase, round, showIndex, highlight, modeId,
   } = state;
 
+  const mode = createGameMode(modeId);
+  const { flashInterval, showDuration } = mode
+    ? mode.paceForRound(round)
+    : { flashInterval: INPUT_READY_DELAY, showDuration: FEEDBACK_HIGHLIGHT_DURATION };
+
   useEffect(() => {
     if (phase !== 'showing') return undefined;
 
-    let delay = FLASH_INTERVAL;
+    let delay = flashInterval;
     if (showIndex === -1) {
       delay = ROUND_INTRO_DELAY;
     } else if (showIndex === round) {
@@ -41,15 +44,15 @@ export default function useGame(random = Math.random) {
 
     const timerId = setTimeout(() => dispatch(showNext()), delay);
     return () => clearTimeout(timerId);
-  }, [phase, showIndex, round]);
+  }, [phase, showIndex, round, flashInterval]);
 
   useEffect(() => {
     if (!highlight) return undefined;
 
-    const duration = highlight.kind === 'show' ? SHOW_HIGHLIGHT_DURATION : FEEDBACK_HIGHLIGHT_DURATION;
+    const duration = highlight.kind === 'show' ? showDuration : FEEDBACK_HIGHLIGHT_DURATION;
     const timerId = setTimeout(() => dispatch(clearHighlight()), duration);
     return () => clearTimeout(timerId);
-  }, [highlight]);
+  }, [highlight, showDuration]);
 
   useEffect(() => {
     if (phase !== 'roundComplete') return undefined;
@@ -62,16 +65,15 @@ export default function useGame(random = Math.random) {
   const cancelSetupAction = useCallback(() => dispatch(cancelSetup()), []);
 
   const startAction = useCallback((selectedModeId) => {
-    const mode = createGameMode(selectedModeId);
-    if (!mode) return;
-    dispatch(start(selectedModeId, generateSequence(mode.rounds, random)));
+    const selectedMode = createGameMode(selectedModeId);
+    if (!selectedMode) return;
+    dispatch(start(selectedModeId, generateSequence(selectedMode.rounds, random)));
   }, [random]);
 
   const retryAction = useCallback(() => {
-    const mode = createGameMode(modeId);
     if (!mode) return;
     dispatch(retry(generateSequence(mode.rounds, random)));
-  }, [random, modeId]);
+  }, [random, mode]);
 
   const quitAction = useCallback(() => dispatch(quit()), []);
   const pressLetterAction = useCallback((letter) => dispatch(pressKey(letter)), []);
