@@ -1,5 +1,5 @@
 import { isLetter } from './letters';
-import { DEFAULT_DIFFICULTY } from './difficulty';
+import { DEFAULT_DIFFICULTY, DIFFICULTIES, isDifficulty } from './difficulty';
 
 export const OPEN_SETUP = 'OPEN_SETUP';
 export const CANCEL_SETUP = 'CANCEL_SETUP';
@@ -58,6 +58,7 @@ function handleCancelSetup(state) {
 function handleStart(state, action) {
   if (state.phase !== 'configuring') return state;
   const { difficulty, sequence } = action.payload;
+  if (!isDifficulty(difficulty) || sequence.length !== DIFFICULTIES[difficulty]) return state;
   return {
     ...state,
     phase: 'showing',
@@ -127,10 +128,12 @@ function handleNextRound(state) {
 
 function handleRetry(state, action) {
   if (state.phase !== 'lost') return state;
+  const { sequence } = action.payload;
+  if (sequence.length !== DIFFICULTIES[state.difficulty]) return state;
   return {
     ...state,
     phase: 'showing',
-    sequence: action.payload.sequence,
+    sequence,
     round: 0,
     showIndex: -1,
     inputIndex: 0,

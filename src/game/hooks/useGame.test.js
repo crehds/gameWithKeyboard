@@ -33,6 +33,16 @@ describe('useGame', () => {
     expect(result.current.state.phase).toBe('configuring');
   });
 
+  it('does nothing for an unknown difficulty', () => {
+    const random = vi.fn(() => 0);
+    const { result } = renderHook(() => useGame(random));
+
+    act(() => result.current.start('legendary'));
+
+    expect(result.current.state.phase).toBe('configuring');
+    expect(random).not.toHaveBeenCalled();
+  });
+
   it('starting a difficulty moves to showing with a freshly generated sequence', () => {
     const { result } = renderHook(() => useGame(fixedRandom));
 

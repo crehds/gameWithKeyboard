@@ -13,7 +13,7 @@ import {
   quit,
 } from '../domain/gameMachine';
 import { generateSequence } from '../domain/letters';
-import { DIFFICULTIES } from '../domain/difficulty';
+import { DIFFICULTIES, isDifficulty } from '../domain/difficulty';
 import {
   ROUND_INTRO_DELAY,
   FLASH_INTERVAL,
@@ -62,6 +62,7 @@ export default function useGame(random = Math.random) {
   const cancelSetupAction = useCallback(() => dispatch(cancelSetup()), []);
 
   const startAction = useCallback((selectedDifficulty) => {
+    if (!isDifficulty(selectedDifficulty)) return;
     const length = DIFFICULTIES[selectedDifficulty];
     dispatch(start(selectedDifficulty, generateSequence(length, random)));
   }, [random]);
