@@ -1,7 +1,7 @@
 import { activate } from '../gameSetup/utils';
 
 export function validateKeyCode({ keyCode, min, max }) {
-  return keyCode > min || keyCode < max;
+  return keyCode >= min && keyCode <= max;
 }
 
 export function handleKeyResult(keyCode, indexKey, currentLevel, currentKey, levels) {

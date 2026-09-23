@@ -26,6 +26,11 @@ function useNextLevel(setup, updateSetup) {
     const { keyCode } = ev;
     const currentKey = boardKeys[indexKey];
     const result = handleKeyResult(keyCode, indexKey, currentLevel, currentKey, levels);
+
+    if (result === 'out') {
+      return null;
+    }
+
     const action = {
       next,
       lose,
