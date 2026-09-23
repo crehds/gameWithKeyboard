@@ -7,7 +7,7 @@ import GameScreen from './GameScreen';
 import {
   ROUND_INTRO_DELAY, FLASH_INTERVAL, INPUT_READY_DELAY, ROUND_COMPLETE_DELAY,
 } from '../domain/timing';
-import { DIFFICULTIES } from '../domain/difficulty';
+import { createGameMode } from '../domain/gameMode';
 
 function advanceToAwaitingInput(round) {
   act(() => { vi.advanceTimersByTime(ROUND_INTRO_DELAY); });
@@ -98,7 +98,7 @@ describe('GameScreen integration', () => {
 
   it('wins the game after completing every round on the easiest difficulty', async () => {
     const random = () => 0; // always 'A'
-    const totalRounds = DIFFICULTIES.rookie;
+    const totalRounds = createGameMode('rookie').rounds;
 
     render(
       <React.StrictMode>
@@ -122,7 +122,7 @@ describe('GameScreen integration', () => {
   it('retries with a newly generated sequence while keeping the same difficulty', async () => {
     // First generation (initial sequence) is all 'A'; second generation
     // (after retry) is all 'B'.
-    const random = makeGenerationalRandom(DIFFICULTIES.expert, [0, 0.05]);
+    const random = makeGenerationalRandom(createGameMode('expert').rounds, [0, 0.05]);
 
     render(
       <React.StrictMode>
@@ -133,7 +133,7 @@ describe('GameScreen integration', () => {
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
     await user.click(screen.getByRole('button', { name: 'Jugar' }));
 
-    expect(screen.getByRole('status')).toHaveTextContent(`Nivel 1 de ${DIFFICULTIES.expert}`);
+    expect(screen.getByRole('status')).toHaveTextContent(`Nivel 1 de ${createGameMode('expert').rounds}`);
 
     advanceToAwaitingInput(0);
     expect(screen.getByText('A')).toHaveAttribute('data-status', 'active');
@@ -144,7 +144,7 @@ describe('GameScreen integration', () => {
 
     await user.click(screen.getByRole('button', { name: 'Sí' }));
 
-    expect(screen.getByRole('status')).toHaveTextContent(`Nivel 1 de ${DIFFICULTIES.expert}`);
+    expect(screen.getByRole('status')).toHaveTextContent(`Nivel 1 de ${createGameMode('expert').rounds}`);
 
     advanceToAwaitingInput(0);
     expect(screen.getByText('B')).toHaveAttribute('data-status', 'active');

@@ -13,7 +13,7 @@ import {
   quit,
 } from '../domain/gameMachine';
 import { generateSequence } from '../domain/letters';
-import { DIFFICULTIES, isDifficulty } from '../domain/difficulty';
+import { createGameMode } from '../domain/gameMode';
 import {
   ROUND_INTRO_DELAY,
   FLASH_INTERVAL,
@@ -26,7 +26,7 @@ import {
 export default function useGame(random = Math.random) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const {
-    phase, round, showIndex, highlight, difficulty,
+    phase, round, showIndex, highlight, modeId,
   } = state;
 
   useEffect(() => {
@@ -61,16 +61,17 @@ export default function useGame(random = Math.random) {
   const openSetupAction = useCallback(() => dispatch(openSetup()), []);
   const cancelSetupAction = useCallback(() => dispatch(cancelSetup()), []);
 
-  const startAction = useCallback((selectedDifficulty) => {
-    if (!isDifficulty(selectedDifficulty)) return;
-    const length = DIFFICULTIES[selectedDifficulty];
-    dispatch(start(selectedDifficulty, generateSequence(length, random)));
+  const startAction = useCallback((selectedModeId) => {
+    const mode = createGameMode(selectedModeId);
+    if (!mode) return;
+    dispatch(start(selectedModeId, generateSequence(mode.rounds, random)));
   }, [random]);
 
   const retryAction = useCallback(() => {
-    const length = DIFFICULTIES[difficulty];
-    dispatch(retry(generateSequence(length, random)));
-  }, [random, difficulty]);
+    const mode = createGameMode(modeId);
+    if (!mode) return;
+    dispatch(retry(generateSequence(mode.rounds, random)));
+  }, [random, modeId]);
 
   const quitAction = useCallback(() => dispatch(quit()), []);
   const pressLetterAction = useCallback((letter) => dispatch(pressKey(letter)), []);

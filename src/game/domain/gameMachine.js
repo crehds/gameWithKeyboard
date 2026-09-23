@@ -1,5 +1,5 @@
 import { isLetter } from './letters';
-import { DEFAULT_DIFFICULTY, DIFFICULTIES, isDifficulty } from './difficulty';
+import { DEFAULT_MODE, createGameMode } from './gameMode';
 
 export const OPEN_SETUP = 'OPEN_SETUP';
 export const CANCEL_SETUP = 'CANCEL_SETUP';
@@ -13,7 +13,7 @@ export const QUIT = 'QUIT';
 
 export const openSetup = () => ({ type: OPEN_SETUP });
 export const cancelSetup = () => ({ type: CANCEL_SETUP });
-export const start = (difficulty, sequence) => ({ type: START, payload: { difficulty, sequence } });
+export const start = (modeId, sequence) => ({ type: START, payload: { modeId, sequence } });
 export const showNext = () => ({ type: SHOW_NEXT });
 export const clearHighlight = () => ({ type: CLEAR_HIGHLIGHT });
 export const pressKey = (letter) => ({ type: KEY, payload: { letter } });
@@ -23,7 +23,7 @@ export const quit = () => ({ type: QUIT });
 
 export const initialState = {
   phase: 'configuring',
-  difficulty: DEFAULT_DIFFICULTY,
+  modeId: DEFAULT_MODE,
   sequence: [],
   round: 0,
   inputIndex: 0,
@@ -55,18 +55,19 @@ function handleCancelSetup(state) {
   return { ...state, phase: 'idle' };
 }
 
-function fitsDifficulty(sequence, difficulty) {
-  return Array.isArray(sequence) && sequence.length === DIFFICULTIES[difficulty];
+function fitsMode(sequence, modeId) {
+  const mode = createGameMode(modeId);
+  return Boolean(mode) && Array.isArray(sequence) && sequence.length === mode.rounds;
 }
 
 function handleStart(state, action) {
   if (state.phase !== 'configuring') return state;
-  const { difficulty, sequence } = action.payload || {};
-  if (!isDifficulty(difficulty) || !fitsDifficulty(sequence, difficulty)) return state;
+  const { modeId, sequence } = action.payload || {};
+  if (!fitsMode(sequence, modeId)) return state;
   return {
     ...state,
     phase: 'showing',
-    difficulty,
+    modeId,
     sequence,
     round: 0,
     inputIndex: 0,
@@ -133,7 +134,7 @@ function handleNextRound(state) {
 function handleRetry(state, action) {
   if (state.phase !== 'lost') return state;
   const { sequence } = action.payload || {};
-  if (!fitsDifficulty(sequence, state.difficulty)) return state;
+  if (!fitsMode(sequence, state.modeId)) return state;
   return {
     ...state,
     phase: 'showing',

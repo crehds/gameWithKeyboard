@@ -15,9 +15,9 @@ import {
   START,
   RETRY,
 } from './gameMachine';
-import { DIFFICULTIES } from './difficulty';
+import { createGameMode } from './gameMode';
 
-const EXPERT_LENGTH = DIFFICULTIES.expert;
+const EXPERT_LENGTH = createGameMode('expert').rounds;
 
 function buildSequence(length) {
   return Array.from({ length }, (_, index) => String.fromCharCode(65 + (index % 26)));
@@ -59,7 +59,7 @@ describe('gameMachine', () => {
       const next = gameReducer(state, start('expert', sequence));
       expect(next).toMatchObject({
         phase: 'showing',
-        difficulty: 'expert',
+        modeId: 'expert',
         sequence,
         round: 0,
         showIndex: -1,
@@ -72,12 +72,12 @@ describe('gameMachine', () => {
       expect(gameReducer(state, start('expert', ['A']))).toBe(state);
     });
 
-    it('is ignored when the difficulty is unknown', () => {
+    it('is ignored when the mode is unknown', () => {
       const state = { ...initialState, phase: 'configuring' };
       expect(gameReducer(state, start('legendary', buildSequence(EXPERT_LENGTH)))).toBe(state);
     });
 
-    it('is ignored when the sequence length does not match the difficulty', () => {
+    it('is ignored when the sequence length does not match the mode', () => {
       const state = { ...initialState, phase: 'configuring' };
       expect(gameReducer(state, start('expert', buildSequence(EXPERT_LENGTH - 1)))).toBe(state);
     });
@@ -209,12 +209,12 @@ describe('gameMachine', () => {
   describe('RETRY', () => {
     it('restarts the same difficulty with a new sequence from round 0', () => {
       const state = {
-        ...initialState, phase: 'lost', difficulty: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
+        ...initialState, phase: 'lost', modeId: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
       };
       const newSequence = buildSequence(EXPERT_LENGTH).reverse();
       const next = gameReducer(state, retry(newSequence));
       expect(next).toMatchObject({
-        phase: 'showing', difficulty: 'expert', sequence: newSequence, round: 0, showIndex: -1, inputIndex: 0,
+        phase: 'showing', modeId: 'expert', sequence: newSequence, round: 0, showIndex: -1, inputIndex: 0,
       });
     });
 
@@ -223,16 +223,16 @@ describe('gameMachine', () => {
       expect(gameReducer(state, retry(['A']))).toBe(state);
     });
 
-    it('is ignored when the new sequence length does not match the difficulty', () => {
+    it('is ignored when the new sequence length does not match the mode', () => {
       const state = {
-        ...initialState, phase: 'lost', difficulty: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
+        ...initialState, phase: 'lost', modeId: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
       };
       expect(gameReducer(state, retry(buildSequence(EXPERT_LENGTH - 1)))).toBe(state);
     });
 
     it('is ignored when the action carries no sequence', () => {
       const state = {
-        ...initialState, phase: 'lost', difficulty: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
+        ...initialState, phase: 'lost', modeId: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
       };
       expect(gameReducer(state, retry(undefined))).toBe(state);
       expect(gameReducer(state, { type: RETRY })).toBe(state);

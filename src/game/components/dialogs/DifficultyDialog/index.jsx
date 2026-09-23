@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { DIFFICULTIES, DEFAULT_DIFFICULTY } from '../../../domain/difficulty';
+import { MODE_IDS, DEFAULT_MODE } from '../../../domain/gameMode';
 import DialogWrapper from '../DialogWrapper';
 
 const LABELS = {
@@ -12,7 +12,7 @@ const LABELS = {
 
 function DifficultyDialog({ onStart, onCancel }) {
   const dialogRef = useRef(null);
-  const [difficulty, setDifficulty] = useState(DEFAULT_DIFFICULTY);
+  const [modeId, setModeId] = useState(DEFAULT_MODE);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -37,16 +37,16 @@ function DifficultyDialog({ onStart, onCancel }) {
         Selecciona la dificultad
         <select
           id="difficulty-select"
-          value={difficulty}
-          onChange={(event) => setDifficulty(event.target.value)}
+          value={modeId}
+          onChange={(event) => setModeId(event.target.value)}
         >
-          {Object.keys(DIFFICULTIES).map((key) => (
-            <option key={key} value={key}>{LABELS[key]}</option>
+          {MODE_IDS.map((id) => (
+            <option key={id} value={id}>{LABELS[id]}</option>
           ))}
         </select>
       </label>
       <div>
-        <button type="button" onClick={() => onStart(difficulty)}>Jugar</button>
+        <button type="button" onClick={() => onStart(modeId)}>Jugar</button>
         <button type="button" onClick={onCancel}>Cancelar</button>
       </div>
     </DialogWrapper>
