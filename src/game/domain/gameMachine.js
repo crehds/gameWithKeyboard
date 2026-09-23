@@ -55,10 +55,14 @@ function handleCancelSetup(state) {
   return { ...state, phase: 'idle' };
 }
 
+function fitsDifficulty(sequence, difficulty) {
+  return Array.isArray(sequence) && sequence.length === DIFFICULTIES[difficulty];
+}
+
 function handleStart(state, action) {
   if (state.phase !== 'configuring') return state;
-  const { difficulty, sequence } = action.payload;
-  if (!isDifficulty(difficulty) || sequence.length !== DIFFICULTIES[difficulty]) return state;
+  const { difficulty, sequence } = action.payload || {};
+  if (!isDifficulty(difficulty) || !fitsDifficulty(sequence, difficulty)) return state;
   return {
     ...state,
     phase: 'showing',
@@ -128,8 +132,8 @@ function handleNextRound(state) {
 
 function handleRetry(state, action) {
   if (state.phase !== 'lost') return state;
-  const { sequence } = action.payload;
-  if (sequence.length !== DIFFICULTIES[state.difficulty]) return state;
+  const { sequence } = action.payload || {};
+  if (!fitsDifficulty(sequence, state.difficulty)) return state;
   return {
     ...state,
     phase: 'showing',

@@ -12,6 +12,8 @@ import {
   quit,
   isPlaying,
   keyStatus,
+  START,
+  RETRY,
 } from './gameMachine';
 import { DIFFICULTIES } from './difficulty';
 
@@ -78,6 +80,12 @@ describe('gameMachine', () => {
     it('is ignored when the sequence length does not match the difficulty', () => {
       const state = { ...initialState, phase: 'configuring' };
       expect(gameReducer(state, start('expert', buildSequence(EXPERT_LENGTH - 1)))).toBe(state);
+    });
+
+    it('is ignored when the action carries no sequence', () => {
+      const state = { ...initialState, phase: 'configuring' };
+      expect(gameReducer(state, start('expert', undefined))).toBe(state);
+      expect(gameReducer(state, { type: START })).toBe(state);
     });
   });
 
@@ -220,6 +228,14 @@ describe('gameMachine', () => {
         ...initialState, phase: 'lost', difficulty: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
       };
       expect(gameReducer(state, retry(buildSequence(EXPERT_LENGTH - 1)))).toBe(state);
+    });
+
+    it('is ignored when the action carries no sequence', () => {
+      const state = {
+        ...initialState, phase: 'lost', difficulty: 'expert', sequence: buildSequence(EXPERT_LENGTH), round: 3,
+      };
+      expect(gameReducer(state, retry(undefined))).toBe(state);
+      expect(gameReducer(state, { type: RETRY })).toBe(state);
     });
   });
 
