@@ -1,0 +1,55 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import DifficultyDialog from '.';
+
+describe('DifficultyDialog', () => {
+  it('opens as a modal dialog with the configuration title and label', () => {
+    render(<DifficultyDialog onStart={() => {}} onCancel={() => {}} />);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('Configuración del juego')).toBeInTheDocument();
+    expect(screen.getByLabelText('Selecciona la dificultad')).toBeInTheDocument();
+  });
+
+  it('offers the four difficulties with their level counts', () => {
+    render(<DifficultyDialog onStart={() => {}} onCancel={() => {}} />);
+    expect(screen.getByText('Novato - 10 niveles')).toBeInTheDocument();
+    expect(screen.getByText('Normal - 14 niveles')).toBeInTheDocument();
+    expect(screen.getByText('Experto - 18 niveles')).toBeInTheDocument();
+    expect(screen.getByText('Eidético - 22 niveles')).toBeInTheDocument();
+  });
+
+  it('defaults to normal', () => {
+    render(<DifficultyDialog onStart={() => {}} onCancel={() => {}} />);
+    expect(screen.getByLabelText('Selecciona la dificultad')).toHaveValue('normal');
+  });
+
+  it('starts the game with the selected difficulty when Jugar is clicked', async () => {
+    const user = userEvent.setup();
+    const onStart = vi.fn();
+    render(<DifficultyDialog onStart={onStart} onCancel={() => {}} />);
+
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    expect(onStart).toHaveBeenCalledWith('expert');
+  });
+
+  it('cancels setup when Cancelar is clicked', async () => {
+    const user = userEvent.setup();
+    const onCancel = vi.fn();
+    render(<DifficultyDialog onStart={() => {}} onCancel={onCancel} />);
+
+    await user.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels setup on Esc (native cancel event)', () => {
+    const onCancel = vi.fn();
+    render(<DifficultyDialog onStart={() => {}} onCancel={onCancel} />);
+
+    screen.getByRole('dialog').dispatchEvent(new Event('cancel', { cancelable: true }));
+
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+});
