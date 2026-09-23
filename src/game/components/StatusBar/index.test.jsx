@@ -10,9 +10,19 @@ describe('StatusBar', () => {
   });
 
   it('shows a refresh button and "Jugando" when playing', () => {
-    render(<StatusBar playing onOpenSetup={() => {}} />);
+    render(<StatusBar playing onOpenSetup={() => {}} score={0} />);
     expect(screen.getByRole('button', { name: 'refresh' })).toBeInTheDocument();
     expect(screen.getByText('Jugando')).toBeInTheDocument();
+  });
+
+  it('shows the current score while playing', () => {
+    render(<StatusBar playing onOpenSetup={() => {}} score={230} />);
+    expect(screen.getByText('Puntos: 230')).toBeInTheDocument();
+  });
+
+  it('does not show a score when not playing', () => {
+    render(<StatusBar playing={false} onOpenSetup={() => {}} />);
+    expect(screen.queryByText(/Puntos:/)).not.toBeInTheDocument();
   });
 
   it('opens setup when the play button is clicked', async () => {

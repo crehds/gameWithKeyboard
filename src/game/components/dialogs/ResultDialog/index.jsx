@@ -13,7 +13,9 @@ const CONTENT = {
   },
 };
 
-function ResultDialog({ result, onRetry, onQuit }) {
+function ResultDialog({
+  result, onRetry, onQuit, score, best, isNewRecord,
+}) {
   const dialogRef = useRef(null);
 
   useEffect(() => {
@@ -38,6 +40,9 @@ function ResultDialog({ result, onRetry, onQuit }) {
     <DialogWrapper ref={dialogRef}>
       <h2>{title}</h2>
       <p>{text}</p>
+      <p>{`Puntos: ${score}`}</p>
+      <p>{`Récord: ${best}`}</p>
+      {isNewRecord && <p>Nuevo récord!</p>}
       <div>
         {result === 'won' ? (
           <button type="button" onClick={onQuit}>Aceptar</button>
@@ -56,6 +61,13 @@ ResultDialog.propTypes = {
   result: PropTypes.oneOf(['won', 'lost']).isRequired,
   onRetry: PropTypes.func.isRequired,
   onQuit: PropTypes.func.isRequired,
+  score: PropTypes.number.isRequired,
+  best: PropTypes.number.isRequired,
+  isNewRecord: PropTypes.bool,
+};
+
+ResultDialog.defaultProps = {
+  isNewRecord: false,
 };
 
 export default ResultDialog;

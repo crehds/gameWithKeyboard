@@ -16,11 +16,16 @@ import {
   NEXT_ROUND,
   RETRY,
 } from './gameMachine';
+import { pointsForKey, roundBonus } from './scoring';
 
 describe('gameMachine', () => {
   describe('initialState', () => {
     it('starts in the configuring phase', () => {
       expect(initialState.phase).toBe('configuring');
+    });
+
+    it('starts with a score of 0', () => {
+      expect(initialState.score).toBe(0);
     });
   });
 
@@ -76,6 +81,11 @@ describe('gameMachine', () => {
       expect(gameReducer(state, start('expert', '1'))).toBe(state);
       expect(gameReducer(state, start('expert', 'AB'))).toBe(state);
       expect(gameReducer(state, { type: START })).toBe(state);
+    });
+
+    it('resets the score to 0', () => {
+      const state = { ...initialState, phase: 'configuring', score: 999 };
+      expect(gameReducer(state, start('expert', 'A')).score).toBe(0);
     });
   });
 
@@ -195,6 +205,66 @@ describe('gameMachine', () => {
       gameReducer(state, pressKey('A'));
       expect(state).toEqual(snapshot);
     });
+
+    describe('scoring', () => {
+      it('adds pointsForKey on a correct, non-completing key press', () => {
+        const state = {
+          ...initialState,
+          phase: 'awaitingInput',
+          modeId: 'rookie',
+          sequence: ['A', 'B', 'C'],
+          round: 2,
+          inputIndex: 0,
+          score: 100,
+        };
+        const next = gameReducer(state, pressKey('A'));
+        expect(next.score).toBe(100 + pointsForKey(2, 1));
+      });
+
+      it('adds pointsForKey plus roundBonus when completing a non-final round', () => {
+        const state = {
+          ...initialState,
+          phase: 'awaitingInput',
+          modeId: 'normal',
+          sequence: ['A', 'B'],
+          round: 1,
+          inputIndex: 1,
+          score: 50,
+        };
+        const next = gameReducer(state, pressKey('B'));
+        const multiplier = 1.5;
+        expect(next.phase).toBe('roundComplete');
+        expect(next.score).toBe(50 + pointsForKey(1, multiplier) + roundBonus(1, multiplier));
+      });
+
+      it('adds pointsForKey plus roundBonus on the winning key of the final round', () => {
+        const state = {
+          ...initialState,
+          phase: 'awaitingInput',
+          modeId: 'rookie',
+          sequence: Array.from({ length: 10 }, () => 'A'),
+          round: 9,
+          inputIndex: 9,
+          score: 0,
+        };
+        const next = gameReducer(state, pressKey('A'));
+        expect(next.phase).toBe('won');
+        expect(next.score).toBe(pointsForKey(9, 1) + roundBonus(9, 1));
+      });
+
+      it('adds nothing on a wrong key', () => {
+        const state = {
+          ...initialState,
+          phase: 'awaitingInput',
+          sequence: ['A', 'B'],
+          round: 1,
+          inputIndex: 0,
+          score: 40,
+        };
+        const next = gameReducer(state, pressKey('Z'));
+        expect(next.score).toBe(40);
+      });
+    });
   });
 
   describe('NEXT_ROUND', () => {
@@ -246,6 +316,13 @@ describe('gameMachine', () => {
       expect(gameReducer(state, retry(undefined))).toBe(state);
       expect(gameReducer(state, retry('9'))).toBe(state);
       expect(gameReducer(state, { type: RETRY })).toBe(state);
+    });
+
+    it('resets the score to 0', () => {
+      const state = {
+        ...initialState, phase: 'lost', modeId: 'expert', score: 999,
+      };
+      expect(gameReducer(state, retry('A')).score).toBe(0);
     });
   });
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  act, render, screen,
+  act, render, screen, within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GameScreen from './GameScreen';
@@ -29,6 +29,14 @@ async function playRoundsToVictory(gameUser, round, totalRounds, modeId = 'exper
     act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
     await playRoundsToVictory(gameUser, round + 1, totalRounds, modeId);
   }
+}
+
+function makeMemoryStorage() {
+  const store = {};
+  return {
+    getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
+    setItem: (key, value) => { store[key] = String(value); },
+  };
 }
 
 // Yields one fixed value per random() call, in order (repeating the last
@@ -182,5 +190,50 @@ describe('GameScreen integration', () => {
     await playRoundsThenFail(user, 0, 3, 'endless');
 
     expect(screen.getByText('PARA ESO?, entrena la memoria')).toBeInTheDocument();
+  });
+
+  it('scores points while playing, shows them and the saved best after losing, and carries the best into a second game', async () => {
+    const random = () => 0; // always 'A'
+    const storage = makeMemoryStorage();
+
+    render(
+      <React.StrictMode>
+        <GameScreen random={random} bestScoreStorage={storage} />
+      </React.StrictMode>,
+    );
+
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    advanceToAwaitingInput(0, 'expert');
+    await user.keyboard('a'); // completes round 0 (expert multiplier 2): 20 + 50 = 70
+
+    expect(screen.getByText('Puntos: 70')).toBeInTheDocument();
+
+    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    advanceToAwaitingInput(1, 'expert');
+    await user.keyboard('b'); // wrong key: ends the game, score stays 70
+    await act(async () => {});
+
+    const lostDialog = screen.getByRole('dialog');
+    expect(within(lostDialog).getByText('Puntos: 70')).toBeInTheDocument();
+    expect(within(lostDialog).getByText('Récord: 70')).toBeInTheDocument();
+    expect(within(lostDialog).getByText('Nuevo récord!')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'No' }));
+    expect(screen.getByText('Apagado')).toBeInTheDocument();
+
+    // Second game, same mode: lose immediately with a score of 0.
+    await user.click(screen.getByRole('button', { name: 'play' }));
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    advanceToAwaitingInput(0, 'expert');
+    await user.keyboard('b'); // wrong key immediately
+
+    const secondLostDialog = screen.getByRole('dialog');
+    expect(within(secondLostDialog).getByText('Puntos: 0')).toBeInTheDocument();
+    expect(within(secondLostDialog).getByText('Récord: 70')).toBeInTheDocument();
+    expect(within(secondLostDialog).queryByText('Nuevo récord!')).not.toBeInTheDocument();
   });
 });

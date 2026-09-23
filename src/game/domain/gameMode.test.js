@@ -88,6 +88,22 @@ describe('gameMode', () => {
       });
     });
 
+    describe('scoreMultiplier', () => {
+      const EXPECTED = {
+        rookie: 1,
+        normal: 1.5,
+        expert: 2,
+        eidetic: 3,
+        endless: 2,
+      };
+
+      MODE_IDS.forEach((id) => {
+        it(`is ${EXPECTED[id]} for ${id}`, () => {
+          expect(createGameMode(id).scoreMultiplier).toBe(EXPECTED[id]);
+        });
+      });
+    });
+
     describe('paceForRound', () => {
       const EXPECTED = {
         rookie: { base: 1000, min: 500 },

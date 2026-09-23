@@ -1,5 +1,6 @@
 import { isLetter } from './letters';
 import { DEFAULT_MODE, isGameMode, createGameMode } from './gameMode';
+import { pointsForKey, roundBonus } from './scoring';
 
 export const OPEN_SETUP = 'OPEN_SETUP';
 export const CANCEL_SETUP = 'CANCEL_SETUP';
@@ -29,6 +30,7 @@ export const initialState = {
   inputIndex: 0,
   showIndex: -1,
   highlight: null,
+  score: 0,
 };
 
 const PLAYING_PHASES = ['showing', 'awaitingInput', 'roundComplete', 'won', 'lost'];
@@ -68,6 +70,7 @@ function handleStart(state, action) {
     inputIndex: 0,
     showIndex: -1,
     highlight: null,
+    score: 0,
   };
 }
 
@@ -99,19 +102,29 @@ function handleKey(state, action) {
     return { ...state, phase: 'lost', highlight: { letter, kind: 'fail' } };
   }
 
+  const mode = createGameMode(state.modeId);
+  const multiplier = mode ? mode.scoreMultiplier : 1;
+  const keyPoints = pointsForKey(state.round, multiplier);
+
   const nextInputIndex = state.inputIndex + 1;
   const completesRound = nextInputIndex > state.round;
   if (!completesRound) {
-    return { ...state, inputIndex: nextInputIndex, highlight: { letter, kind: 'success' } };
+    return {
+      ...state,
+      inputIndex: nextInputIndex,
+      highlight: { letter, kind: 'success' },
+      score: state.score + keyPoints,
+    };
   }
 
-  const mode = createGameMode(state.modeId);
   const isLastRound = Boolean(mode) && mode.isFinalRound(state.round);
+  const bonus = roundBonus(state.round, multiplier);
   return {
     ...state,
     inputIndex: nextInputIndex,
     highlight: { letter, kind: 'success' },
     phase: isLastRound ? 'won' : 'roundComplete',
+    score: state.score + keyPoints + bonus,
   };
 }
 
@@ -142,6 +155,7 @@ function handleRetry(state, action) {
     showIndex: -1,
     inputIndex: 0,
     highlight: null,
+    score: 0,
   };
 }
 

@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import useGame from '../hooks/useGame';
 import useLetterInput from '../hooks/useLetterInput';
+import useBestScore from '../hooks/useBestScore';
 import { isPlaying, keyStatus } from '../domain/gameMachine';
 import { createGameMode } from '../domain/gameMode';
 import StatusBar from './StatusBar';
@@ -9,7 +10,7 @@ import DifficultyDialog from './dialogs/DifficultyDialog';
 import RoundBanner from './dialogs/RoundBanner';
 import ResultDialog from './dialogs/ResultDialog';
 
-function GameScreen({ random }) {
+function GameScreen({ random, bestScoreStorage }) {
   const {
     state, openSetup, start, cancelSetup, retry, quit, pressLetter,
   } = useGame(random);
@@ -17,13 +18,15 @@ function GameScreen({ random }) {
   useLetterInput(pressLetter);
 
   const {
-    phase, round, showIndex, modeId,
+    phase, round, showIndex, modeId, score,
   } = state;
   const mode = createGameMode(modeId);
+  const finished = phase === 'won' || phase === 'lost';
+  const { best, isNewRecord } = useBestScore(modeId, score, finished, bestScoreStorage);
 
   return (
     <>
-      <StatusBar playing={isPlaying(state)} onOpenSetup={openSetup} />
+      <StatusBar playing={isPlaying(state)} onOpenSetup={openSetup} score={score} />
       <Keyboard getStatus={(letter) => keyStatus(state, letter)} />
       {phase === 'configuring' && (
         <DifficultyDialog onStart={start} onCancel={cancelSetup} />
@@ -31,8 +34,15 @@ function GameScreen({ random }) {
       {phase === 'showing' && showIndex === -1 && (
         <RoundBanner round={round} total={mode ? mode.rounds : round + 1} />
       )}
-      {(phase === 'won' || phase === 'lost') && (
-        <ResultDialog result={phase} onRetry={retry} onQuit={quit} />
+      {finished && (
+        <ResultDialog
+          result={phase}
+          onRetry={retry}
+          onQuit={quit}
+          score={score}
+          best={best}
+          isNewRecord={isNewRecord}
+        />
       )}
     </>
   );
@@ -40,10 +50,15 @@ function GameScreen({ random }) {
 
 GameScreen.propTypes = {
   random: PropTypes.func,
+  bestScoreStorage: PropTypes.shape({
+    getItem: PropTypes.func.isRequired,
+    setItem: PropTypes.func.isRequired,
+  }),
 };
 
 GameScreen.defaultProps = {
   random: Math.random,
+  bestScoreStorage: undefined,
 };
 
 export default GameScreen;
