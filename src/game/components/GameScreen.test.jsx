@@ -267,4 +267,48 @@ describe('GameScreen integration', () => {
 
     expect(screen.getByRole('status')).toHaveTextContent('Nivel 3');
   });
+
+  it('keeps reverse-order best scores apart from the forward record of the same mode', async () => {
+    const random = () => 0; // always 'A'
+    const storage = makeMemoryStorage();
+    storage.setItem('gameWithKeyboard.bestScore.expert', '500');
+
+    render(
+      <React.StrictMode>
+        <GameScreen random={random} bestScoreStorage={storage} />
+      </React.StrictMode>,
+    );
+
+    await user.click(screen.getByLabelText('Reverso: escribe la secuencia al revés'));
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    advanceToAwaitingInput(0, 'expert');
+    await user.keyboard('a'); // expert x2 * reverse x1.5 = x3: 30 + 75 = 105
+    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    advanceToAwaitingInput(1, 'expert');
+    await user.keyboard('b'); // wrong key: ends the game, score stays 105
+    await act(async () => {});
+
+    const reverseLostDialog = screen.getByRole('dialog');
+    expect(within(reverseLostDialog).getByText('Récord: 105')).toBeInTheDocument();
+    expect(within(reverseLostDialog).getByText('Nuevo récord!')).toBeInTheDocument();
+    expect(storage.getItem('gameWithKeyboard.bestScore.expert.reverse')).toBe('105');
+    expect(storage.getItem('gameWithKeyboard.bestScore.expert')).toBe('500');
+
+    await user.click(screen.getByRole('button', { name: 'No' }));
+
+    // Same mode, forward order: the forward record is reloaded, not the reverse one.
+    await user.click(screen.getByRole('button', { name: 'play' }));
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    advanceToAwaitingInput(0, 'expert');
+    await user.keyboard('b'); // wrong key immediately
+    await act(async () => {});
+
+    const forwardLostDialog = screen.getByRole('dialog');
+    expect(within(forwardLostDialog).getByText('Récord: 500')).toBeInTheDocument();
+    expect(within(forwardLostDialog).queryByText('Nuevo récord!')).not.toBeInTheDocument();
+  });
 });
