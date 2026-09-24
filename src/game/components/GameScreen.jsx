@@ -38,7 +38,11 @@ function GameScreen({ random, bestScoreStorage }) {
         <DifficultyDialog onStart={start} onCancel={cancelSetup} />
       )}
       {phase === 'showing' && showIndex === -1 && (
-        <RoundBanner round={round} total={mode ? mode.rounds : round + 1} />
+        <RoundBanner
+          round={round}
+          total={mode ? mode.rounds : round + 1}
+          reversed={orderId === 'reverse'}
+        />
       )}
       {finished && (
         <ResultDialog

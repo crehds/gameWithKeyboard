@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { MODE_IDS, DEFAULT_MODE } from '../../../domain/gameMode';
+import { ORDER_IDS, DEFAULT_ORDER } from '../../../domain/inputOrder';
 import DialogWrapper from '../DialogWrapper';
+
+// ORDER_IDS is ['forward', 'reverse']; the reverse checkbox toggles between
+// the default order and the other one, without hardcoding the literal id.
+const REVERSE_ORDER = ORDER_IDS.find((id) => id !== DEFAULT_ORDER);
 
 const LABELS = {
   rookie: 'Novato - 10 niveles',
@@ -14,6 +19,7 @@ const LABELS = {
 function DifficultyDialog({ onStart, onCancel }) {
   const dialogRef = useRef(null);
   const [modeId, setModeId] = useState(DEFAULT_MODE);
+  const [reversed, setReversed] = useState(false);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -46,8 +52,22 @@ function DifficultyDialog({ onStart, onCancel }) {
           ))}
         </select>
       </label>
+      <label htmlFor="reverse-order-checkbox">
+        <input
+          type="checkbox"
+          id="reverse-order-checkbox"
+          checked={reversed}
+          onChange={(event) => setReversed(event.target.checked)}
+        />
+        Reverso: escribe la secuencia al revés
+      </label>
       <div>
-        <button type="button" onClick={() => onStart(modeId)}>Jugar</button>
+        <button
+          type="button"
+          onClick={() => onStart(modeId, reversed ? REVERSE_ORDER : DEFAULT_ORDER)}
+        >
+          Jugar
+        </button>
         <button type="button" onClick={onCancel}>Cancelar</button>
       </div>
     </DialogWrapper>

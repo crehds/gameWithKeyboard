@@ -236,4 +236,35 @@ describe('GameScreen integration', () => {
     expect(within(secondLostDialog).getByText('Récord: 70')).toBeInTheDocument();
     expect(within(secondLostDialog).queryByText('Nuevo récord!')).not.toBeInTheDocument();
   });
+
+  it('lets the player choose reverse order in setup, and accepts the sequence typed backwards', async () => {
+    // First random() call (start's first letter) yields 'A'; the second
+    // (round 1's next letter) yields 'B'.
+    const random = makeSequentialRandom([0, 0.05]);
+
+    render(
+      <React.StrictMode>
+        <GameScreen random={random} />
+      </React.StrictMode>,
+    );
+
+    await user.click(screen.getByLabelText('Reverso: escribe la secuencia al revés'));
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'rookie');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    expect(screen.getByRole('status')).toHaveTextContent('¡Al revés!');
+
+    advanceToAwaitingInput(0, 'rookie');
+    await user.keyboard('a');
+
+    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    expect(screen.getByRole('status')).toHaveTextContent('Nivel 2');
+
+    advanceToAwaitingInput(1, 'rookie');
+    await user.keyboard('ba'); // reverse order: sequence is A,B, so expects B then A
+
+    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+
+    expect(screen.getByRole('status')).toHaveTextContent('Nivel 3');
+  });
 });

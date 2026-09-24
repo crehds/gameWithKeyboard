@@ -17,4 +17,16 @@ describe('RoundBanner', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Nivel 49');
     expect(screen.getByRole('status')).not.toHaveTextContent('de');
   });
+
+  it('does not show the reversed hint by default', () => {
+    render(<RoundBanner round={0} total={14} />);
+    expect(screen.getByRole('status')).not.toHaveTextContent('¡Al revés!');
+  });
+
+  it('shows a reversed hint when reversed is true', () => {
+    render(<RoundBanner round={0} total={14} reversed />);
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent('Nivel 1 de 14');
+    expect(status).toHaveTextContent('¡Al revés!');
+  });
 });

@@ -16,6 +16,7 @@ import {
 } from '../domain/gameMachine';
 import { randomLetter } from '../domain/letters';
 import { createGameMode } from '../domain/gameMode';
+import { DEFAULT_ORDER, createInputOrder } from '../domain/inputOrder';
 import {
   ROUND_INTRO_DELAY,
   INPUT_READY_DELAY,
@@ -76,9 +77,9 @@ export default function useGame(random = Math.random) {
   const openSetupAction = useCallback(() => dispatch(openSetup()), []);
   const cancelSetupAction = useCallback(() => dispatch(cancelSetup()), []);
 
-  const startAction = useCallback((selectedModeId) => {
-    if (!createGameMode(selectedModeId)) return;
-    dispatch(start(selectedModeId, randomLetter(randomRef.current)));
+  const startAction = useCallback((selectedModeId, selectedOrderId = DEFAULT_ORDER) => {
+    if (!createGameMode(selectedModeId) || !createInputOrder(selectedOrderId)) return;
+    dispatch(start(selectedModeId, randomLetter(randomRef.current), selectedOrderId));
   }, []);
 
   const retryAction = useCallback(() => {

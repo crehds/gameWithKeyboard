@@ -32,7 +32,7 @@ describe('DifficultyDialog', () => {
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'endless');
     await user.click(screen.getByRole('button', { name: 'Jugar' }));
 
-    expect(onStart).toHaveBeenCalledWith('endless');
+    expect(onStart).toHaveBeenCalledWith('endless', 'forward');
   });
 
   it('defaults to normal', () => {
@@ -48,7 +48,24 @@ describe('DifficultyDialog', () => {
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
     await user.click(screen.getByRole('button', { name: 'Jugar' }));
 
-    expect(onStart).toHaveBeenCalledWith('expert');
+    expect(onStart).toHaveBeenCalledWith('expert', 'forward');
+  });
+
+  it('the reverse checkbox is unchecked by default', () => {
+    render(<DifficultyDialog onStart={() => {}} onCancel={() => {}} />);
+    expect(screen.getByLabelText('Reverso: escribe la secuencia al revés')).not.toBeChecked();
+  });
+
+  it('starts with the reverse order when the reverse checkbox is checked', async () => {
+    const user = userEvent.setup();
+    const onStart = vi.fn();
+    render(<DifficultyDialog onStart={onStart} onCancel={() => {}} />);
+
+    await user.click(screen.getByLabelText('Reverso: escribe la secuencia al revés'));
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'normal');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    expect(onStart).toHaveBeenCalledWith('normal', 'reverse');
   });
 
   it('cancels setup when Cancelar is clicked', async () => {

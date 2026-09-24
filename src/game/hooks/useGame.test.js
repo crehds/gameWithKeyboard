@@ -51,6 +51,16 @@ describe('useGame', () => {
     expect(random).not.toHaveBeenCalled();
   });
 
+  it('does nothing for an unknown input order', () => {
+    const random = vi.fn(() => 0);
+    const { result } = renderHook(() => useGame(random));
+
+    act(() => result.current.start('rookie', 'sideways'));
+
+    expect(result.current.state.phase).toBe('configuring');
+    expect(random).not.toHaveBeenCalled();
+  });
+
   it('starting a mode moves to showing with a one-letter sequence from random()', () => {
     const { result } = renderHook(() => useGame(fixedRandom));
 
