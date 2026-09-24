@@ -4,6 +4,7 @@ import { createGameMode } from '../domain/gameMode';
 import {
   ROUND_INTRO_DELAY,
   INPUT_READY_DELAY,
+  FEEDBACK_HIGHLIGHT_DURATION,
   ROUND_COMPLETE_DELAY,
 } from '../domain/timing';
 
@@ -109,6 +110,37 @@ describe('useGame', () => {
     expect(result.current.state.phase).toBe('showing');
     expect(result.current.state.round).toBe(1);
     expect(result.current.state.sequence).toEqual(['A', 'A']);
+  });
+
+  it('advances to the next round after exactly the round-complete delay even when random changes identity every render', () => {
+    const { result } = renderHook(() => useGame(() => 0));
+    act(() => result.current.start('rookie'));
+    advanceToAwaitingInput(0);
+    act(() => result.current.pressLetter('A'));
+
+    // Advance in two ticks, like real browser macrotasks, so the
+    // success-highlight clear commits (and re-renders with a fresh
+    // `random` identity) before the round-complete timer is due.
+    act(() => { vi.advanceTimersByTime(FEEDBACK_HIGHLIGHT_DURATION); });
+    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY - FEEDBACK_HIGHLIGHT_DURATION); });
+
+    expect(result.current.state.phase).toBe('showing');
+    expect(result.current.state.round).toBe(1);
+  });
+
+  it('uses the latest random passed to the hook for the next round-complete letter', () => {
+    const { result, rerender } = renderHook(
+      ({ random }) => useGame(random),
+      { initialProps: { random: () => 0 } }, // 'A'
+    );
+    act(() => result.current.start('rookie'));
+    advanceToAwaitingInput(0);
+    act(() => result.current.pressLetter('A'));
+
+    rerender({ random: () => 0.99 }); // 'Z'
+    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+
+    expect(result.current.state.sequence[1]).toBe('Z');
   });
 
   it('ignores non-letter presses', () => {

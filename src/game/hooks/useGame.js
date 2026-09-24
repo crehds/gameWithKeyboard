@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useReducer } from 'react';
+import {
+  useCallback, useEffect, useReducer, useRef,
+} from 'react';
 import {
   gameReducer,
   initialState,
@@ -32,6 +34,13 @@ export default function useGame(random = Math.random) {
     ? mode.paceForRound(round)
     : { flashInterval: INPUT_READY_DELAY, showDuration: FEEDBACK_HIGHLIGHT_DURATION };
 
+  // Keep the latest random in a ref so timers can read it at call time
+  // without resetting on every re-render caused by an unstable random.
+  const randomRef = useRef(random);
+  useEffect(() => {
+    randomRef.current = random;
+  }, [random]);
+
   useEffect(() => {
     if (phase !== 'showing') return undefined;
 
@@ -58,23 +67,23 @@ export default function useGame(random = Math.random) {
     if (phase !== 'roundComplete') return undefined;
 
     const timerId = setTimeout(
-      () => dispatch(nextRound(randomLetter(random))),
+      () => dispatch(nextRound(randomLetter(randomRef.current))),
       ROUND_COMPLETE_DELAY,
     );
     return () => clearTimeout(timerId);
-  }, [phase, random]);
+  }, [phase]);
 
   const openSetupAction = useCallback(() => dispatch(openSetup()), []);
   const cancelSetupAction = useCallback(() => dispatch(cancelSetup()), []);
 
   const startAction = useCallback((selectedModeId) => {
     if (!createGameMode(selectedModeId)) return;
-    dispatch(start(selectedModeId, randomLetter(random)));
-  }, [random]);
+    dispatch(start(selectedModeId, randomLetter(randomRef.current)));
+  }, []);
 
   const retryAction = useCallback(() => {
-    dispatch(retry(randomLetter(random)));
-  }, [random]);
+    dispatch(retry(randomLetter(randomRef.current)));
+  }, []);
 
   const quitAction = useCallback(() => dispatch(quit()), []);
   const pressLetterAction = useCallback((letter) => dispatch(pressKey(letter)), []);
