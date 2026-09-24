@@ -32,6 +32,10 @@ const StatusBarWrapper = styled.div`
     `}
   }
 
+  & > span {
+    margin-left: 12px;
+  }
+
   & button {
     display: flex;
     align-items: center;
