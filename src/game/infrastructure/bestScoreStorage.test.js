@@ -37,6 +37,14 @@ describe('bestScoreStorage', () => {
     expect(storage.getItem('gameWithKeyboard.bestScore.normal')).toBe('77');
   });
 
+  it('keeps a mode+order slot separate from the bare mode slot', () => {
+    const storage = makeMemoryStorage();
+    saveBestScore('rookie', 50, storage);
+    saveBestScore('rookie.reverse', 300, storage);
+    expect(loadBestScore('rookie', storage)).toBe(50);
+    expect(loadBestScore('rookie.reverse', storage)).toBe(300);
+  });
+
   it('uses window.localStorage when no storage is given', () => {
     saveBestScore('normal', 77);
     expect(loadBestScore('normal')).toBe(77);

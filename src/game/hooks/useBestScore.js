@@ -1,23 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { loadBestScore, saveBestScore } from '../infrastructure/bestScoreStorage';
 
-export default function useBestScore(modeId, score, finished, storage) {
-  const [best, setBest] = useState(() => loadBestScore(modeId, storage));
+export default function useBestScore(slotId, score, finished, storage) {
+  const [best, setBest] = useState(() => loadBestScore(slotId, storage));
   const [isNewRecord, setIsNewRecord] = useState(false);
   const savedForGameRef = useRef(false);
-  const previousModeIdRef = useRef(modeId);
+  const previousSlotIdRef = useRef(slotId);
 
-  // A new mode means a different best-score slot: reload it and forget any
-  // pending "new record" state from a previous mode's game. Guarded by an
-  // actual modeId change (not just an effect re-run) so StrictMode's
-  // double-invocation of this effect can't stomp on the save guard below.
+  // A new slot (mode, or mode+order) means a different best score: reload it
+  // and forget any pending "new record" state from a previous slot's game.
+  // Guarded by an actual slotId change (not just an effect re-run) so
+  // StrictMode's double-invocation of this effect can't stomp on the save
+  // guard below.
   useEffect(() => {
-    if (previousModeIdRef.current === modeId) return;
-    previousModeIdRef.current = modeId;
-    setBest(loadBestScore(modeId, storage));
+    if (previousSlotIdRef.current === slotId) return;
+    previousSlotIdRef.current = slotId;
+    setBest(loadBestScore(slotId, storage));
     setIsNewRecord(false);
     savedForGameRef.current = false;
-  }, [modeId, storage]);
+  }, [slotId, storage]);
 
   useEffect(() => {
     if (!finished) {
@@ -32,11 +33,11 @@ export default function useBestScore(modeId, score, finished, storage) {
     savedForGameRef.current = true;
 
     if (score > best) {
-      saveBestScore(modeId, score, storage);
+      saveBestScore(slotId, score, storage);
       setBest(score);
       setIsNewRecord(true);
     }
-  }, [finished, score, best, modeId, storage]);
+  }, [finished, score, best, slotId, storage]);
 
   return { best, isNewRecord };
 }

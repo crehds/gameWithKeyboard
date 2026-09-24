@@ -1,4 +1,4 @@
-import { pointsForKey, roundBonus } from './scoring';
+import { pointsForKey, roundBonus, bestScoreSlot } from './scoring';
 
 describe('scoring', () => {
   describe('pointsForKey', () => {
@@ -24,6 +24,16 @@ describe('scoring', () => {
     it('rounds to the nearest integer', () => {
       expect(roundBonus(0, 1.5)).toBe(Math.round(25 * 1 * 1.5));
       expect(roundBonus(0, 1.5)).toBe(38);
+    });
+  });
+
+  describe('bestScoreSlot', () => {
+    it('returns the bare mode id for the default (forward) order, keeping legacy best-score keys', () => {
+      expect(bestScoreSlot('rookie', 'forward')).toBe('rookie');
+    });
+
+    it('suffixes the slot with the order id for a non-default order', () => {
+      expect(bestScoreSlot('rookie', 'reverse')).toBe('rookie.reverse');
     });
   });
 });

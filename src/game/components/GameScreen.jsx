@@ -4,6 +4,7 @@ import useLetterInput from '../hooks/useLetterInput';
 import useBestScore from '../hooks/useBestScore';
 import { isPlaying, keyStatus } from '../domain/gameMachine';
 import { createGameMode } from '../domain/gameMode';
+import { bestScoreSlot } from '../domain/scoring';
 import StatusBar from './StatusBar';
 import Keyboard from './Keyboard';
 import DifficultyDialog from './dialogs/DifficultyDialog';
@@ -18,11 +19,16 @@ function GameScreen({ random, bestScoreStorage }) {
   useLetterInput(pressLetter);
 
   const {
-    phase, round, showIndex, modeId, score,
+    phase, round, showIndex, modeId, orderId, score,
   } = state;
   const mode = createGameMode(modeId);
   const finished = phase === 'won' || phase === 'lost';
-  const { best, isNewRecord } = useBestScore(modeId, score, finished, bestScoreStorage);
+  const { best, isNewRecord } = useBestScore(
+    bestScoreSlot(modeId, orderId),
+    score,
+    finished,
+    bestScoreStorage,
+  );
 
   return (
     <>
