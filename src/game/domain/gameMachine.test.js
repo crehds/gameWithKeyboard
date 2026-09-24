@@ -87,6 +87,21 @@ describe('gameMachine', () => {
       const state = { ...initialState, phase: 'configuring', score: 999 };
       expect(gameReducer(state, start('expert', 'A')).score).toBe(0);
     });
+
+    it('defaults the input order to forward when omitted', () => {
+      const state = { ...initialState, phase: 'configuring' };
+      expect(gameReducer(state, start('expert', 'A')).orderId).toBe('forward');
+    });
+
+    it('stores the given input order', () => {
+      const state = { ...initialState, phase: 'configuring' };
+      expect(gameReducer(state, start('expert', 'A', 'reverse')).orderId).toBe('reverse');
+    });
+
+    it('is ignored when the order id is unknown', () => {
+      const state = { ...initialState, phase: 'configuring' };
+      expect(gameReducer(state, start('expert', 'A', 'sideways'))).toBe(state);
+    });
   });
 
   describe('SHOW_NEXT', () => {
@@ -264,6 +279,42 @@ describe('gameMachine', () => {
         const next = gameReducer(state, pressKey('Z'));
         expect(next.score).toBe(40);
       });
+
+      it('multiplies the mode and reverse-order score multipliers together', () => {
+        const state = {
+          ...initialState,
+          phase: 'awaitingInput',
+          modeId: 'expert',
+          orderId: 'reverse',
+          sequence: ['A'],
+          round: 0,
+          inputIndex: 0,
+          score: 0,
+        };
+        const next = gameReducer(state, pressKey('A'));
+        expect(next.phase).toBe('roundComplete');
+        expect(next.score).toBe(105); // 30 key (10*1*3) + 75 bonus (25*1*3)
+      });
+    });
+
+    describe('reverse order', () => {
+      const reverseAwaitingState = {
+        ...initialState, phase: 'awaitingInput', orderId: 'reverse', sequence: ['A', 'B'], round: 1, inputIndex: 0,
+      };
+
+      it('accepts the sequence typed backwards and completes the round', () => {
+        const afterFirst = gameReducer(reverseAwaitingState, pressKey('B'));
+        expect(afterFirst.phase).toBe('awaitingInput');
+        expect(afterFirst.inputIndex).toBe(1);
+
+        const afterSecond = gameReducer(afterFirst, pressKey('A'));
+        expect(afterSecond.phase).toBe('roundComplete');
+      });
+
+      it('loses when the forward-order letter is typed first', () => {
+        const next = gameReducer(reverseAwaitingState, pressKey('A'));
+        expect(next.phase).toBe('lost');
+      });
     });
   });
 
@@ -323,6 +374,13 @@ describe('gameMachine', () => {
         ...initialState, phase: 'lost', modeId: 'expert', score: 999,
       };
       expect(gameReducer(state, retry('A')).score).toBe(0);
+    });
+
+    it('keeps the current orderId', () => {
+      const state = {
+        ...initialState, phase: 'lost', modeId: 'expert', orderId: 'reverse', sequence: ['A', 'B', 'C', 'D'], round: 3,
+      };
+      expect(gameReducer(state, retry('Z')).orderId).toBe('reverse');
     });
   });
 

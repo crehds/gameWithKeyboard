@@ -1,6 +1,8 @@
 // Per-mode differences live here as plain data (a factory), never as Strategy
 // objects/interfaces. React state only ever stores a mode id string; whoever
-// needs mode data resolves it through createGameMode(id).
+// needs mode data resolves it through createGameMode(id). Rules that change
+// *how input is checked* (e.g. input order) are not mode data: they live in
+// inputOrder.js as strategies instead.
 
 import { paceForRound } from './timing';
 

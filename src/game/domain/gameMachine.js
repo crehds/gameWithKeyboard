@@ -1,5 +1,8 @@
 import { isLetter } from './letters';
 import { DEFAULT_MODE, isGameMode, createGameMode } from './gameMode';
+import {
+  DEFAULT_ORDER, isInputOrder, createInputOrder,
+} from './inputOrder';
 import { pointsForKey, roundBonus } from './scoring';
 
 export const OPEN_SETUP = 'OPEN_SETUP';
@@ -14,7 +17,9 @@ export const QUIT = 'QUIT';
 
 export const openSetup = () => ({ type: OPEN_SETUP });
 export const cancelSetup = () => ({ type: CANCEL_SETUP });
-export const start = (modeId, firstLetter) => ({ type: START, payload: { modeId, firstLetter } });
+export const start = (modeId, firstLetter, orderId = DEFAULT_ORDER) => (
+  { type: START, payload: { modeId, firstLetter, orderId } }
+);
 export const showNext = () => ({ type: SHOW_NEXT });
 export const clearHighlight = () => ({ type: CLEAR_HIGHLIGHT });
 export const pressKey = (letter) => ({ type: KEY, payload: { letter } });
@@ -25,6 +30,7 @@ export const quit = () => ({ type: QUIT });
 export const initialState = {
   phase: 'configuring',
   modeId: DEFAULT_MODE,
+  orderId: DEFAULT_ORDER,
   sequence: [],
   round: 0,
   inputIndex: 0,
@@ -59,12 +65,13 @@ function handleCancelSetup(state) {
 
 function handleStart(state, action) {
   if (state.phase !== 'configuring') return state;
-  const { modeId, firstLetter } = action.payload || {};
-  if (!isGameMode(modeId) || !isLetter(firstLetter)) return state;
+  const { modeId, firstLetter, orderId = DEFAULT_ORDER } = action.payload || {};
+  if (!isGameMode(modeId) || !isLetter(firstLetter) || !isInputOrder(orderId)) return state;
   return {
     ...state,
     phase: 'showing',
     modeId,
+    orderId,
     sequence: [firstLetter],
     round: 0,
     inputIndex: 0,
@@ -97,13 +104,14 @@ function handleKey(state, action) {
   const { letter } = action.payload;
   if (!isLetter(letter)) return state;
 
-  const expected = state.sequence[state.inputIndex];
+  const order = createInputOrder(state.orderId) || createInputOrder(DEFAULT_ORDER);
+  const expected = order.expectedLetter(state.sequence, state.inputIndex);
   if (letter !== expected) {
     return { ...state, phase: 'lost', highlight: { letter, kind: 'fail' } };
   }
 
   const mode = createGameMode(state.modeId);
-  const multiplier = mode ? mode.scoreMultiplier : 1;
+  const multiplier = (mode ? mode.scoreMultiplier : 1) * order.scoreMultiplier;
   const keyPoints = pointsForKey(state.round, multiplier);
 
   const nextInputIndex = state.inputIndex + 1;
