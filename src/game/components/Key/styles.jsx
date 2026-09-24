@@ -28,8 +28,14 @@ const STATUS_STYLES = {
   `,
 };
 
-export const KeyWrapper = styled.div`
+export const KeyWrapper = styled.button`
   animation: ${Appear} 2.5s;
+  color: inherit;
+  font: inherit;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
   min-width: 108px;
   padding: 36px 10px;
   border: 4px solid white;

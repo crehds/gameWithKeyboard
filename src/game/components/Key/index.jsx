@@ -1,9 +1,14 @@
 import PropTypes from 'prop-types';
 import { KeyWrapper } from './styles';
 
-function Key({ letter, status }) {
+function Key({ letter, status, onPress }) {
   return (
-    <KeyWrapper $status={status} data-status={status}>
+    <KeyWrapper
+      type="button"
+      $status={status}
+      data-status={status}
+      onClick={() => onPress(letter)}
+    >
       {letter}
     </KeyWrapper>
   );
@@ -12,6 +17,7 @@ function Key({ letter, status }) {
 Key.propTypes = {
   letter: PropTypes.string.isRequired,
   status: PropTypes.oneOf(['idle', 'active', 'success', 'fail']),
+  onPress: PropTypes.func.isRequired,
 };
 
 Key.defaultProps = {

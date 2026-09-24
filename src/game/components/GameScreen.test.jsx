@@ -118,6 +118,28 @@ describe('GameScreen integration', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
+  it('plays a round by tapping the on-screen key', async () => {
+    const random = () => 0; // always 'A'
+
+    render(
+      <React.StrictMode>
+        <GameScreen random={random} />
+      </React.StrictMode>,
+    );
+
+    await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    advanceToAwaitingInput(0);
+    expect(screen.getByRole('button', { name: 'A' })).toHaveAttribute('data-status', 'active');
+
+    await user.click(screen.getByRole('button', { name: 'A' }));
+
+    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+
+    expect(screen.getByRole('status')).toHaveTextContent('Nivel 2 de 18');
+  });
+
   it('wins the game after completing every round on the easiest difficulty', async () => {
     const random = () => 0; // always 'A'
     const totalRounds = createGameMode('rookie').rounds;

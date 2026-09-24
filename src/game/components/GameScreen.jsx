@@ -34,7 +34,7 @@ function GameScreen({ random, bestScoreStorage }) {
   return (
     <>
       <StatusBar playing={isPlaying(state)} onOpenSetup={openSetup} score={score} />
-      <Keyboard getStatus={(letter) => keyStatus(state, letter)} />
+      <Keyboard getStatus={(letter) => keyStatus(state, letter)} onPress={pressLetter} />
       {phase === 'configuring' && (
         <DifficultyDialog onStart={start} onCancel={cancelSetup} />
       )}
