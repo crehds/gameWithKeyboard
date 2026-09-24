@@ -4,6 +4,7 @@ import useLetterInput from '../hooks/useLetterInput';
 import useBestScore from '../hooks/useBestScore';
 import { isPlaying, keyStatus } from '../domain/gameMachine';
 import { createGameMode } from '../domain/gameMode';
+import { REVERSE_ORDER } from '../domain/inputOrder';
 import { bestScoreSlot } from '../domain/scoring';
 import StatusBar from './StatusBar';
 import Keyboard from './Keyboard';
@@ -41,7 +42,7 @@ function GameScreen({ random, bestScoreStorage }) {
         <RoundBanner
           round={round}
           total={mode ? mode.rounds : round + 1}
-          reversed={orderId === 'reverse'}
+          reversed={orderId === REVERSE_ORDER}
         />
       )}
       {finished && (

@@ -23,6 +23,8 @@ export const ORDER_IDS = ['forward', 'reverse'];
 
 export const DEFAULT_ORDER = 'forward';
 
+export const REVERSE_ORDER = 'reverse';
+
 export function isInputOrder(id) {
   return Object.prototype.hasOwnProperty.call(STRATEGIES, id);
 }

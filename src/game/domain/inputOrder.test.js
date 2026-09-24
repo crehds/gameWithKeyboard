@@ -1,5 +1,5 @@
 import {
-  ORDER_IDS, DEFAULT_ORDER, isInputOrder, createInputOrder,
+  ORDER_IDS, DEFAULT_ORDER, REVERSE_ORDER, isInputOrder, createInputOrder,
 } from './inputOrder';
 
 describe('inputOrder', () => {
@@ -9,6 +9,11 @@ describe('inputOrder', () => {
 
   it('defaults to forward', () => {
     expect(DEFAULT_ORDER).toBe('forward');
+  });
+
+  it('names the reverse order with a valid id', () => {
+    expect(REVERSE_ORDER).toBe('reverse');
+    expect(isInputOrder(REVERSE_ORDER)).toBe(true);
   });
 
   describe('isInputOrder', () => {

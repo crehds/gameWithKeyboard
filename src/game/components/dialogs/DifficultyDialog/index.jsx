@@ -1,12 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { MODE_IDS, DEFAULT_MODE } from '../../../domain/gameMode';
-import { ORDER_IDS, DEFAULT_ORDER } from '../../../domain/inputOrder';
+import { DEFAULT_ORDER, REVERSE_ORDER } from '../../../domain/inputOrder';
 import DialogWrapper from '../DialogWrapper';
-
-// ORDER_IDS is ['forward', 'reverse']; the reverse checkbox toggles between
-// the default order and the other one, without hardcoding the literal id.
-const REVERSE_ORDER = ORDER_IDS.find((id) => id !== DEFAULT_ORDER);
 
 const LABELS = {
   rookie: 'Novato - 10 niveles',

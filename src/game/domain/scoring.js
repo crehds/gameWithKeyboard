@@ -1,5 +1,6 @@
 // Pure scoring formulas. `round` is 0-based (the round currently being
-// played) and `multiplier` comes from the current mode's scoreMultiplier.
+// played) and `multiplier` is the current mode's scoreMultiplier times the
+// current input order's.
 
 import { DEFAULT_ORDER } from './inputOrder';
 
