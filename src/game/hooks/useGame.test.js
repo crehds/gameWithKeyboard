@@ -128,7 +128,7 @@ describe('useGame', () => {
     expect(result.current.state.round).toBe(1);
   });
 
-  it('uses the latest random passed to the hook for the next round-complete letter', () => {
+  it('keeps the round-complete timer running when random changes mid-delay, and draws from the new one', () => {
     const { result, rerender } = renderHook(
       ({ random }) => useGame(random),
       { initialProps: { random: () => 0 } }, // 'A'
@@ -136,11 +136,32 @@ describe('useGame', () => {
     act(() => result.current.start('rookie'));
     advanceToAwaitingInput(0);
     act(() => result.current.pressLetter('A'));
+    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY - 1); });
 
     rerender({ random: () => 0.99 }); // 'Z'
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => { vi.advanceTimersByTime(1); });
 
-    expect(result.current.state.sequence[1]).toBe('Z');
+    expect(result.current.state.phase).toBe('showing');
+    expect(result.current.state.sequence).toEqual(['A', 'Z']);
+  });
+
+  it('start and retry draw from the latest random passed to the hook', () => {
+    const { result, rerender } = renderHook(
+      ({ random }) => useGame(random),
+      { initialProps: { random: () => 0 } }, // 'A'
+    );
+
+    rerender({ random: () => 0.99 }); // 'Z'
+    act(() => result.current.start('rookie'));
+    expect(result.current.state.sequence).toEqual(['Z']);
+
+    advanceToAwaitingInput(0);
+    act(() => result.current.pressLetter('A'));
+    expect(result.current.state.phase).toBe('lost');
+
+    rerender({ random: () => 0.5 }); // 'N'
+    act(() => result.current.retry());
+    expect(result.current.state.sequence).toEqual(['N']);
   });
 
   it('ignores non-letter presses', () => {
