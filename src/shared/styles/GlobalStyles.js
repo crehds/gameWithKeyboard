@@ -20,7 +20,17 @@ const GlobalStyle = createGlobalStyle`
 
   ul, li, h1, h2, h3, p, button { margin: 0; padding: 0; }
   ul { list-style: none; }
-  button { background: transparent; border: 0; outline: 0 }
+  button {
+    background: transparent;
+    border: 0;
+  }
+  button:focus {
+    outline: 0;
+  }
+  button:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
 
   /* #app {
     box-shadow: 0 0 10px rgba(0, 0, 0, .05);
