@@ -1,6 +1,14 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
+  :root {
+    /* Shared layout tokens: side safe area and reserved header height, used
+       by the keyboard sizing, the status bar and the round banner so none
+       of them overlap on any viewport. */
+    --gutter: 8px;
+    --header: 64px;
+  }
+
   html {
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;

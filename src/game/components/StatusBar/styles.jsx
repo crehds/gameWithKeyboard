@@ -16,8 +16,10 @@ const StatusBarWrapper = styled.div`
   position: absolute;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   left: 5px;
   top: 10px;
+  max-width: calc(100vw - 10px);
 
   & svg {
     font-size: 30px;
