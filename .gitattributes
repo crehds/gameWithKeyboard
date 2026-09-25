@@ -1,0 +1,8 @@
+# Store text files with LF and check them out with LF on every OS,
+# regardless of each developer's core.autocrlf setting.
+* text=auto eol=lf
+
+# Binary assets: never touch their bytes.
+*.ico binary
+*.png binary
+*.jpg binary
