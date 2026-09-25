@@ -89,6 +89,23 @@ describe('useBestScore', () => {
     expect(result.current.best).toBe(999);
   });
 
+  it('forgets a pending record when the mode changes, without saving it under the new mode', () => {
+    const storage = makeMemoryStorage({ [`${KEY_PREFIX}expert`]: '999' });
+    const { result, rerender } = renderHook(
+      ({ modeId, score, finished }) => useBestScore(modeId, score, finished, storage),
+      { initialProps: { modeId: 'rookie', score: 0, finished: false } },
+    );
+
+    rerender({ modeId: 'rookie', score: 40, finished: true });
+    expect(result.current.isNewRecord).toBe(true);
+
+    rerender({ modeId: 'expert', score: 40, finished: true });
+
+    expect(result.current.isNewRecord).toBe(false);
+    expect(result.current.best).toBe(999);
+    expect(storage.getItem(`${KEY_PREFIX}expert`)).toBe('999');
+  });
+
   it('saves at most once per finished game, even under StrictMode double-invocation', () => {
     const storage = makeMemoryStorage();
     const setItemSpy = vi.spyOn(storage, 'setItem');
