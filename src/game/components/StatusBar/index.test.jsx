@@ -20,6 +20,11 @@ describe('StatusBar', () => {
     expect(screen.getByText('Puntos: 230')).toBeInTheDocument();
   });
 
+  it('shows zero points while playing when no score is given', () => {
+    render(<StatusBar playing onOpenSetup={() => {}} />);
+    expect(screen.getByText('Puntos: 0')).toBeInTheDocument();
+  });
+
   it('does not show a score when not playing', () => {
     render(<StatusBar playing={false} onOpenSetup={() => {}} />);
     expect(screen.queryByText(/Puntos:/)).not.toBeInTheDocument();
