@@ -3,6 +3,7 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom/vitest';
+import { vi } from 'vitest';
 
 // jsdom does not implement HTMLDialogElement.prototype.showModal/close (as of
 // jsdom 30 / this project's version), so <dialog> elements throw
