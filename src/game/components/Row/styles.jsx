@@ -6,7 +6,7 @@ const RowWrapper = styled.div`
   gap: var(--gap, 6px);
   margin-bottom: var(--gap, 6px);
 
-  :last-of-type {
+  &:last-of-type {
     margin-bottom: 0;
     /* Roughly one key width, replicating the old -110px physical-keyboard
        stagger, but scaled with the current key size. */
