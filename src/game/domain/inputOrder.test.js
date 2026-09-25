@@ -1,5 +1,9 @@
 import {
-  ORDER_IDS, DEFAULT_ORDER, REVERSE_ORDER, isInputOrder, createInputOrder,
+  ORDER_IDS,
+  DEFAULT_ORDER,
+  REVERSE_ORDER,
+  isInputOrder,
+  createInputOrder,
 } from './inputOrder';
 
 describe('inputOrder', () => {

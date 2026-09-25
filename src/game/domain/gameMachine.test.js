@@ -106,7 +106,12 @@ describe('gameMachine', () => {
 
   describe('SHOW_NEXT', () => {
     const showingState = {
-      ...initialState, phase: 'showing', sequence: ['A', 'B', 'C'], round: 1, showIndex: -1, inputIndex: 0,
+      ...initialState,
+      phase: 'showing',
+      sequence: ['A', 'B', 'C'],
+      round: 1,
+      showIndex: -1,
+      inputIndex: 0,
     };
 
     it('lights up the next letter of the prefix', () => {
@@ -143,7 +148,11 @@ describe('gameMachine', () => {
 
   describe('KEY', () => {
     const awaitingState = {
-      ...initialState, phase: 'awaitingInput', sequence: ['A', 'B', 'C'], round: 1, inputIndex: 0,
+      ...initialState,
+      phase: 'awaitingInput',
+      sequence: ['A', 'B', 'C'],
+      round: 1,
+      inputIndex: 0,
     };
 
     it('advances inputIndex and flashes success on a correct letter', () => {
@@ -203,14 +212,22 @@ describe('gameMachine', () => {
 
     it('regression #2: is ignored once the game has been won', () => {
       const wonState = {
-        ...initialState, phase: 'won', sequence: ['A'], round: 0, inputIndex: 1,
+        ...initialState,
+        phase: 'won',
+        sequence: ['A'],
+        round: 0,
+        inputIndex: 1,
       };
       expect(gameReducer(wonState, pressKey('A'))).toBe(wonState);
     });
 
     it('regression #4: a repeated key press after the round already completed is ignored (no level skip)', () => {
       const state = {
-        ...initialState, phase: 'awaitingInput', sequence: ['A', 'B', 'C'], round: 0, inputIndex: 0,
+        ...initialState,
+        phase: 'awaitingInput',
+        sequence: ['A', 'B', 'C'],
+        round: 0,
+        inputIndex: 0,
       };
       const afterFirstPress = gameReducer(state, pressKey('A'));
       expect(afterFirstPress.phase).toBe('roundComplete');
@@ -304,7 +321,12 @@ describe('gameMachine', () => {
 
     describe('reverse order', () => {
       const reverseAwaitingState = {
-        ...initialState, phase: 'awaitingInput', orderId: 'reverse', sequence: ['A', 'B'], round: 1, inputIndex: 0,
+        ...initialState,
+        phase: 'awaitingInput',
+        orderId: 'reverse',
+        sequence: ['A', 'B'],
+        round: 1,
+        inputIndex: 0,
       };
 
       it('accepts the sequence typed backwards and completes the round', () => {
@@ -326,11 +348,20 @@ describe('gameMachine', () => {
   describe('NEXT_ROUND', () => {
     it('moves from roundComplete to showing, appending the new letter and incrementing the round', () => {
       const state = {
-        ...initialState, phase: 'roundComplete', sequence: ['A'], round: 0, showIndex: 2, inputIndex: 1,
+        ...initialState,
+        phase: 'roundComplete',
+        sequence: ['A'],
+        round: 0,
+        showIndex: 2,
+        inputIndex: 1,
       };
       const next = gameReducer(state, nextRound('B'));
       expect(next).toMatchObject({
-        phase: 'showing', sequence: ['A', 'B'], round: 1, showIndex: -1, inputIndex: 0,
+        phase: 'showing',
+        sequence: ['A', 'B'],
+        round: 1,
+        showIndex: -1,
+        inputIndex: 0,
       });
     });
 
@@ -341,7 +372,10 @@ describe('gameMachine', () => {
 
     it('is ignored when the next letter is missing or not a letter', () => {
       const state = {
-        ...initialState, phase: 'roundComplete', sequence: ['A'], round: 0,
+        ...initialState,
+        phase: 'roundComplete',
+        sequence: ['A'],
+        round: 0,
       };
       expect(gameReducer(state, nextRound(undefined))).toBe(state);
       expect(gameReducer(state, nextRound('2'))).toBe(state);
@@ -352,11 +386,20 @@ describe('gameMachine', () => {
   describe('RETRY', () => {
     it('restarts the same mode with a fresh one-letter sequence from round 0', () => {
       const state = {
-        ...initialState, phase: 'lost', modeId: 'expert', sequence: ['A', 'B', 'C', 'D'], round: 3,
+        ...initialState,
+        phase: 'lost',
+        modeId: 'expert',
+        sequence: ['A', 'B', 'C', 'D'],
+        round: 3,
       };
       const next = gameReducer(state, retry('Z'));
       expect(next).toMatchObject({
-        phase: 'showing', modeId: 'expert', sequence: ['Z'], round: 0, showIndex: -1, inputIndex: 0,
+        phase: 'showing',
+        modeId: 'expert',
+        sequence: ['Z'],
+        round: 0,
+        showIndex: -1,
+        inputIndex: 0,
       });
     });
 
@@ -367,7 +410,11 @@ describe('gameMachine', () => {
 
     it('is ignored when the first letter is missing or not a letter', () => {
       const state = {
-        ...initialState, phase: 'lost', modeId: 'expert', sequence: ['A', 'B', 'C'], round: 2,
+        ...initialState,
+        phase: 'lost',
+        modeId: 'expert',
+        sequence: ['A', 'B', 'C'],
+        round: 2,
       };
       expect(gameReducer(state, retry(undefined))).toBe(state);
       expect(gameReducer(state, retry('9'))).toBe(state);
@@ -376,14 +423,22 @@ describe('gameMachine', () => {
 
     it('resets the score to 0', () => {
       const state = {
-        ...initialState, phase: 'lost', modeId: 'expert', score: 999,
+        ...initialState,
+        phase: 'lost',
+        modeId: 'expert',
+        score: 999,
       };
       expect(gameReducer(state, retry('A')).score).toBe(0);
     });
 
     it('keeps the current orderId', () => {
       const state = {
-        ...initialState, phase: 'lost', modeId: 'expert', orderId: 'reverse', sequence: ['A', 'B', 'C', 'D'], round: 3,
+        ...initialState,
+        phase: 'lost',
+        modeId: 'expert',
+        orderId: 'reverse',
+        sequence: ['A', 'B', 'C', 'D'],
+        round: 3,
       };
       expect(gameReducer(state, retry('Z')).orderId).toBe('reverse');
     });

@@ -4,7 +4,9 @@ function makeMemoryStorage(initial = {}) {
   const store = { ...initial };
   return {
     getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
-    setItem: (key, value) => { store[key] = String(value); },
+    setItem: (key, value) => {
+      store[key] = String(value);
+    },
   };
 }
 
@@ -50,19 +52,22 @@ describe('bestScoreStorage', () => {
     expect(loadBestScore('normal')).toBe(77);
   });
 
-  it.each([
-    ['not-a-number'],
-    ['-5'],
-    ['12.5'],
-  ])('treats a corrupt stored value (%s) as 0', (raw) => {
-    const storage = makeMemoryStorage({ 'gameWithKeyboard.bestScore.rookie': raw });
-    expect(loadBestScore('rookie', storage)).toBe(0);
-  });
+  it.each([['not-a-number'], ['-5'], ['12.5']])(
+    'treats a corrupt stored value (%s) as 0',
+    (raw) => {
+      const storage = makeMemoryStorage({ 'gameWithKeyboard.bestScore.rookie': raw });
+      expect(loadBestScore('rookie', storage)).toBe(0);
+    },
+  );
 
   it('never throws when the given storage throws on read or write', () => {
     const throwingStorage = {
-      getItem: () => { throw new Error('blocked'); },
-      setItem: () => { throw new Error('blocked'); },
+      getItem: () => {
+        throw new Error('blocked');
+      },
+      setItem: () => {
+        throw new Error('blocked');
+      },
     };
     expect(() => loadBestScore('rookie', throwingStorage)).not.toThrow();
     expect(loadBestScore('rookie', throwingStorage)).toBe(0);
@@ -73,7 +78,9 @@ describe('bestScoreStorage', () => {
     const original = Object.getOwnPropertyDescriptor(window, 'localStorage');
     Object.defineProperty(window, 'localStorage', {
       configurable: true,
-      get() { throw new Error('SecurityError'); },
+      get() {
+        throw new Error('SecurityError');
+      },
     });
 
     try {

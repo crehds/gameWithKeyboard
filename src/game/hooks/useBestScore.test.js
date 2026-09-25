@@ -8,7 +8,9 @@ function makeMemoryStorage(initial = {}) {
   const store = { ...initial };
   return {
     getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
-    setItem: (key, value) => { store[key] = String(value); },
+    setItem: (key, value) => {
+      store[key] = String(value);
+    },
   };
 }
 
@@ -85,6 +87,25 @@ describe('useBestScore', () => {
     rerender({ modeId: 'expert' });
 
     expect(result.current.best).toBe(999);
+  });
+
+  it('forgets a pending record when the mode changes, without saving it under the new mode', () => {
+    // Expert starts empty, so a leaked save of the rookie record would show up.
+    const storage = makeMemoryStorage();
+    const { result, rerender } = renderHook(
+      ({ modeId, score, finished }) => useBestScore(modeId, score, finished, storage),
+      { initialProps: { modeId: 'rookie', score: 0, finished: false } },
+    );
+
+    rerender({ modeId: 'rookie', score: 40, finished: true });
+    expect(result.current.isNewRecord).toBe(true);
+
+    rerender({ modeId: 'expert', score: 40, finished: true });
+
+    expect(result.current.isNewRecord).toBe(false);
+    expect(result.current.best).toBe(0);
+    expect(storage.getItem(`${KEY_PREFIX}expert`)).toBeNull();
+    expect(storage.getItem(`${KEY_PREFIX}rookie`)).toBe('40');
   });
 
   it('saves at most once per finished game, even under StrictMode double-invocation', () => {

@@ -12,8 +12,11 @@ import { vi } from 'vitest';
 // ResultDialog) to open/close in jsdom without pulling in native modal
 // semantics (focus trapping, top-layer rendering, ::backdrop) that jsdom
 // doesn't support anyway.
-if (typeof window !== 'undefined' && window.HTMLDialogElement
-  && !window.HTMLDialogElement.prototype.showModal) {
+if (
+  typeof window !== 'undefined' &&
+  window.HTMLDialogElement &&
+  !window.HTMLDialogElement.prototype.showModal
+) {
   window.HTMLDialogElement.prototype.showModal = function showModal() {
     this.setAttribute('open', '');
   };

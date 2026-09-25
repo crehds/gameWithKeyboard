@@ -1,6 +1,4 @@
-import {
-  useCallback, useEffect, useReducer, useRef,
-} from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   gameReducer,
   initialState,
@@ -26,9 +24,7 @@ import {
 
 export default function useGame(random = Math.random) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
-  const {
-    phase, round, showIndex, highlight, modeId,
-  } = state;
+  const { phase, round, showIndex, highlight, modeId } = state;
 
   const mode = createGameMode(modeId);
   const { flashInterval, showDuration } = mode

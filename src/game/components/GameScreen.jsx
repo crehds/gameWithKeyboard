@@ -13,15 +13,11 @@ import RoundBanner from './dialogs/RoundBanner';
 import ResultDialog from './dialogs/ResultDialog';
 
 function GameScreen({ random = Math.random, bestScoreStorage = undefined }) {
-  const {
-    state, openSetup, start, cancelSetup, retry, quit, pressLetter,
-  } = useGame(random);
+  const { state, openSetup, start, cancelSetup, retry, quit, pressLetter } = useGame(random);
 
   useLetterInput(pressLetter);
 
-  const {
-    phase, round, showIndex, modeId, orderId, score,
-  } = state;
+  const { phase, round, showIndex, modeId, orderId, score } = state;
   const mode = createGameMode(modeId);
   const finished = phase === 'won' || phase === 'lost';
   const { best, isNewRecord } = useBestScore(
@@ -35,9 +31,7 @@ function GameScreen({ random = Math.random, bestScoreStorage = undefined }) {
     <>
       <StatusBar playing={isPlaying(state)} onOpenSetup={openSetup} score={score} />
       <Keyboard getStatus={(letter) => keyStatus(state, letter)} onPress={pressLetter} />
-      {phase === 'configuring' && (
-        <DifficultyDialog onStart={start} onCancel={cancelSetup} />
-      )}
+      {phase === 'configuring' && <DifficultyDialog onStart={start} onCancel={cancelSetup} />}
       {phase === 'showing' && showIndex === -1 && (
         <RoundBanner
           round={round}

@@ -19,11 +19,17 @@ function showDurationFor(modeId, round) {
 }
 
 function advanceToAwaitingInput(round, modeId = 'rookie') {
-  act(() => { vi.advanceTimersByTime(ROUND_INTRO_DELAY); });
+  act(() => {
+    vi.advanceTimersByTime(ROUND_INTRO_DELAY);
+  });
   for (let i = 1; i <= round; i += 1) {
-    act(() => { vi.advanceTimersByTime(flashIntervalFor(modeId, round)); });
+    act(() => {
+      vi.advanceTimersByTime(flashIntervalFor(modeId, round));
+    });
   }
-  act(() => { vi.advanceTimersByTime(INPUT_READY_DELAY); });
+  act(() => {
+    vi.advanceTimersByTime(INPUT_READY_DELAY);
+  });
 }
 
 describe('useGame', () => {
@@ -74,7 +80,9 @@ describe('useGame', () => {
     const { result } = renderHook(() => useGame(fixedRandom));
     act(() => result.current.start('rookie'));
 
-    act(() => { vi.advanceTimersByTime(ROUND_INTRO_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_INTRO_DELAY);
+    });
 
     expect(result.current.state.showIndex).toBe(0);
     expect(result.current.state.highlight).toEqual({ letter: 'A', kind: 'show' });
@@ -83,9 +91,13 @@ describe('useGame', () => {
   it('clears the show highlight after its duration', () => {
     const { result } = renderHook(() => useGame(fixedRandom));
     act(() => result.current.start('rookie'));
-    act(() => { vi.advanceTimersByTime(ROUND_INTRO_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_INTRO_DELAY);
+    });
 
-    act(() => { vi.advanceTimersByTime(showDurationFor('rookie', 0)); });
+    act(() => {
+      vi.advanceTimersByTime(showDurationFor('rookie', 0));
+    });
 
     expect(result.current.state.highlight).toBeNull();
   });
@@ -115,7 +127,9 @@ describe('useGame', () => {
     advanceToAwaitingInput(0);
     act(() => result.current.pressLetter('A'));
 
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
 
     expect(result.current.state.phase).toBe('showing');
     expect(result.current.state.round).toBe(1);
@@ -131,8 +145,12 @@ describe('useGame', () => {
     // Advance in two ticks, like real browser macrotasks, so the
     // success-highlight clear commits (and re-renders with a fresh
     // `random` identity) before the round-complete timer is due.
-    act(() => { vi.advanceTimersByTime(FEEDBACK_HIGHLIGHT_DURATION); });
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY - FEEDBACK_HIGHLIGHT_DURATION); });
+    act(() => {
+      vi.advanceTimersByTime(FEEDBACK_HIGHLIGHT_DURATION);
+    });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY - FEEDBACK_HIGHLIGHT_DURATION);
+    });
 
     expect(result.current.state.phase).toBe('showing');
     expect(result.current.state.round).toBe(1);
@@ -146,10 +164,14 @@ describe('useGame', () => {
     act(() => result.current.start('rookie'));
     advanceToAwaitingInput(0);
     act(() => result.current.pressLetter('A'));
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY - 1); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY - 1);
+    });
 
     rerender({ random: () => 0.99 }); // 'Z'
-    act(() => { vi.advanceTimersByTime(1); });
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
 
     expect(result.current.state.phase).toBe('showing');
     expect(result.current.state.sequence).toEqual(['A', 'Z']);
@@ -202,7 +224,9 @@ describe('useGame', () => {
   it('regression #3: clears every pending timer on unmount', () => {
     const { result, unmount } = renderHook(() => useGame(fixedRandom));
     act(() => result.current.start('rookie'));
-    act(() => { vi.advanceTimersByTime(ROUND_INTRO_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_INTRO_DELAY);
+    });
 
     expect(vi.getTimerCount()).toBeGreaterThan(0);
 
@@ -215,37 +239,49 @@ describe('useGame', () => {
     const { result } = renderHook(() => useGame(fixedRandom));
     act(() => result.current.start('rookie'));
 
-    act(() => { vi.advanceTimersByTime(ROUND_INTRO_DELAY); }); // showIndex -> 0
+    act(() => {
+      vi.advanceTimersByTime(ROUND_INTRO_DELAY);
+    }); // showIndex -> 0
 
     act(() => result.current.openSetup());
     expect(result.current.state.phase).toBe('configuring');
 
-    act(() => { vi.advanceTimersByTime(flashIntervalFor('rookie', 0) * 5); });
+    act(() => {
+      vi.advanceTimersByTime(flashIntervalFor('rookie', 0) * 5);
+    });
 
     expect(result.current.state.phase).toBe('configuring');
     expect(result.current.state.showIndex).toBe(0);
   });
 
-  it('flashes a later round at that round\'s (faster) pace', () => {
+  it("flashes a later round at that round's (faster) pace", () => {
     const { result } = renderHook(() => useGame(fixedRandom));
     act(() => result.current.start('eidetic'));
 
     advanceToAwaitingInput(0, 'eidetic');
     act(() => result.current.pressLetter('A'));
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
 
     expect(result.current.state.round).toBe(1);
 
-    act(() => { vi.advanceTimersByTime(ROUND_INTRO_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_INTRO_DELAY);
+    });
     expect(result.current.state.showIndex).toBe(0);
 
     const round1Interval = flashIntervalFor('eidetic', 1);
     expect(round1Interval).toBeLessThan(flashIntervalFor('eidetic', 0));
 
-    act(() => { vi.advanceTimersByTime(round1Interval - 1); });
+    act(() => {
+      vi.advanceTimersByTime(round1Interval - 1);
+    });
     expect(result.current.state.showIndex).toBe(0);
 
-    act(() => { vi.advanceTimersByTime(1); });
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
     expect(result.current.state.showIndex).toBe(1);
   });
 });

@@ -1,6 +1,4 @@
-import {
-  ALPHABET, isLetter, toLetter, randomLetter, generateSequence,
-} from './letters';
+import { ALPHABET, isLetter, toLetter, randomLetter, generateSequence } from './letters';
 
 describe('letters', () => {
   it('contains all 26 uppercase letters from A to Z', () => {
