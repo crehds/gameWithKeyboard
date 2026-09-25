@@ -113,31 +113,29 @@ describe('gameMode', () => {
         endless: { base: 900, min: 300 },
       };
 
-      MODE_IDS.forEach((id) => {
-        describe(id, () => {
-          const mode = createGameMode(id);
-          const { base, min } = EXPECTED[id];
+      describe.each(MODE_IDS)('%s', (id) => {
+        const mode = createGameMode(id);
+        const { base, min } = EXPECTED[id];
 
-          it('starts at its base interval on round 0', () => {
-            expect(mode.paceForRound(0).flashInterval).toBe(base);
-          });
+        it('starts at its base interval on round 0', () => {
+          expect(mode.paceForRound(0).flashInterval).toBe(base);
+        });
 
-          it('decreases the interval as rounds progress', () => {
-            const round1 = mode.paceForRound(1).flashInterval;
-            const round2 = mode.paceForRound(2).flashInterval;
-            expect(round1).toBeLessThan(base);
-            expect(round2).toBeLessThan(round1);
-          });
+        it('decreases the interval as rounds progress', () => {
+          const round1 = mode.paceForRound(1).flashInterval;
+          const round2 = mode.paceForRound(2).flashInterval;
+          expect(round1).toBeLessThan(base);
+          expect(round2).toBeLessThan(round1);
+        });
 
-          it('clamps at its minimum interval, which is below its base', () => {
-            expect(min).toBeLessThan(base);
-            expect(mode.paceForRound(1000).flashInterval).toBe(min);
-          });
+        it('clamps at its minimum interval, which is below its base', () => {
+          expect(min).toBeLessThan(base);
+          expect(mode.paceForRound(1000).flashInterval).toBe(min);
+        });
 
-          it('shows the letter for half of the flash interval', () => {
-            const { flashInterval, showDuration } = mode.paceForRound(3);
-            expect(showDuration).toBe(Math.round(flashInterval / 2));
-          });
+        it('shows the letter for half of the flash interval', () => {
+          const { flashInterval, showDuration } = mode.paceForRound(3);
+          expect(showDuration).toBe(Math.round(flashInterval / 2));
         });
       });
     });
