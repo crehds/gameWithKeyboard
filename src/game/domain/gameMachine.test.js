@@ -196,6 +196,11 @@ describe('gameMachine', () => {
       expect(gameReducer(awaitingState, pressKey(null))).toBe(awaitingState);
     });
 
+    it('is ignored while the sequence is still showing (early taps)', () => {
+      const showingState = { ...awaitingState, phase: 'showing', showIndex: 0 };
+      expect(gameReducer(showingState, pressKey('A'))).toBe(showingState);
+    });
+
     it('regression #2: is ignored once the game has been won', () => {
       const wonState = {
         ...initialState, phase: 'won', sequence: ['A'], round: 0, inputIndex: 1,
