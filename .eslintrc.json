@@ -47,6 +47,7 @@
   "plugins": ["react"],
   "rules": {
     "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/require-default-props": ["error", { "forbidDefaultForRequired": true, "functions": "defaultArguments" }]
   }
 }

@@ -12,7 +12,7 @@ import DifficultyDialog from './dialogs/DifficultyDialog';
 import RoundBanner from './dialogs/RoundBanner';
 import ResultDialog from './dialogs/ResultDialog';
 
-function GameScreen({ random, bestScoreStorage }) {
+function GameScreen({ random = Math.random, bestScoreStorage = undefined }) {
   const {
     state, openSetup, start, cancelSetup, retry, quit, pressLetter,
   } = useGame(random);
@@ -65,11 +65,6 @@ GameScreen.propTypes = {
     getItem: PropTypes.func.isRequired,
     setItem: PropTypes.func.isRequired,
   }),
-};
-
-GameScreen.defaultProps = {
-  random: Math.random,
-  bestScoreStorage: undefined,
 };
 
 export default GameScreen;

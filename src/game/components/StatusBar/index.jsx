@@ -3,7 +3,7 @@ import { GiStarAltar, GiPlayButton } from 'react-icons/gi';
 import PropTypes from 'prop-types';
 import StatusBarWrapper from './styles';
 
-function StatusBar({ playing, onOpenSetup, score }) {
+function StatusBar({ playing, onOpenSetup, score = 0 }) {
   return (
     <StatusBarWrapper $playing={playing}>
       <button type="button" aria-label={playing ? 'refresh' : 'play'} onClick={onOpenSetup}>
@@ -20,10 +20,6 @@ StatusBar.propTypes = {
   playing: PropTypes.bool.isRequired,
   onOpenSetup: PropTypes.func.isRequired,
   score: PropTypes.number,
-};
-
-StatusBar.defaultProps = {
-  score: 0,
 };
 
 export default StatusBar;

@@ -14,7 +14,7 @@ const CONTENT = {
 };
 
 function ResultDialog({
-  result, onRetry, onQuit, score, best, isNewRecord,
+  result, onRetry, onQuit, score, best, isNewRecord = false,
 }) {
   const dialogRef = useRef(null);
 
@@ -64,10 +64,6 @@ ResultDialog.propTypes = {
   score: PropTypes.number.isRequired,
   best: PropTypes.number.isRequired,
   isNewRecord: PropTypes.bool,
-};
-
-ResultDialog.defaultProps = {
-  isNewRecord: false,
 };
 
 export default ResultDialog;
