@@ -4,10 +4,16 @@ const KeyboardWrapper = styled.div`
   /* Key size bounded by both viewport width (10 keys is the widest row) and
      the height left after the header, so the whole keyboard always fits. */
   --gap: 6px;
+  /* dvh tracks the mobile address bar. It must never reach --key unsupported:
+     an invalid custom property defeats every var(--key, 108px) fallback. */
+  --viewport-height: 100vh;
+  @supports (height: 100dvh) {
+    --viewport-height: 100dvh;
+  }
   --key: min(
     108px,
     calc((100vw - 2 * var(--gutter, 8px) - 9 * var(--gap)) / 10),
-    calc((100dvh - var(--header, 64px) - 4 * var(--gap)) / 3.3)
+    calc((var(--viewport-height) - var(--header, 64px) - 4 * var(--gap)) / 3.3)
   );
   /* Keys stay square-ish on wide screens; on narrow portrait phones they
      grow taller than wide to enlarge the touch target. */
@@ -18,8 +24,7 @@ const KeyboardWrapper = styled.div`
   }
 
   display: flex;
-  height: 100vh;
-  height: 100dvh;
+  height: var(--viewport-height);
   justify-content: center;
   flex-direction: column;
   padding-top: var(--header, 64px);
