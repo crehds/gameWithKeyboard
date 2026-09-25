@@ -36,6 +36,9 @@ export const KeyWrapper = styled.button`
   color: inherit;
   font: inherit;
   touch-action: manipulation;
+  /* Safari only supports the prefixed form, and styled-components 6 no
+     longer adds vendor prefixes on its own. */
+  -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
