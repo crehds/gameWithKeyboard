@@ -6,8 +6,8 @@
   "description": "A keyboard-based memory game in the style of Simon.",
   "dependencies": {
     "prop-types": "^15.8.1",
-    "react": "^18.0.2",
-    "react-dom": "^18.0.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "react-icons": "^4.2.0",
     "styled-components": "^5.2.1"
   },
@@ -20,9 +20,10 @@
     "lint": "eslint src --ext .js,.jsx"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^14.4.3",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@vitejs/plugin-react": "^6.1.1",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^19.0.4",

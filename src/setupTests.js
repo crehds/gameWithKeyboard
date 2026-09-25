@@ -21,3 +21,11 @@ if (typeof window !== 'undefined' && window.HTMLDialogElement
     this.dispatchEvent(new window.Event('close'));
   };
 }
+
+// After every user-event action, @testing-library/react (v14+) waits for a
+// setTimeout(0) and only advances fake timers when a global `jest` exists.
+// Vitest defines none, so under vi.useFakeTimers() that timeout never fires
+// and every awaited click or keypress hangs. Forward that call to Vitest.
+globalThis.jest = {
+  advanceTimersByTime: (ms) => vi.advanceTimersByTime(ms),
+};
