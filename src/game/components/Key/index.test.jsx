@@ -18,6 +18,27 @@ describe('Key', () => {
     expect(onPress).toHaveBeenCalledWith('A');
   });
 
+  it('does not keep focus after a click, so Enter or Space cannot replay its letter', async () => {
+    const user = userEvent.setup();
+    const onPress = vi.fn();
+    render(<Key letter="A" status="idle" onPress={onPress} />);
+
+    await user.click(screen.getByRole('button', { name: 'A' }));
+    await user.keyboard('{Enter}');
+    await user.keyboard(' ');
+
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('stays reachable with Tab for keyboard users', async () => {
+    const user = userEvent.setup();
+    render(<Key letter="A" status="idle" onPress={() => {}} />);
+
+    await user.tab();
+
+    expect(screen.getByRole('button', { name: 'A' })).toHaveFocus();
+  });
+
   it.each([
     ['idle'],
     ['active'],
