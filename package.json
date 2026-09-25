@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "A keyboard-based memory game in the style of Simon.",
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "prop-types": "^15.8.1",
     "react": "^19.3.0",
