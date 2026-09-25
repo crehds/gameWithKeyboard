@@ -44,7 +44,9 @@ function DifficultyDialog({ onStart, onCancel }) {
           onChange={(event) => setModeId(event.target.value)}
         >
           {MODE_IDS.map((id) => (
-            <option key={id} value={id}>{LABELS[id]}</option>
+            <option key={id} value={id}>
+              {LABELS[id]}
+            </option>
           ))}
         </select>
       </label>
@@ -64,7 +66,9 @@ function DifficultyDialog({ onStart, onCancel }) {
         >
           Jugar
         </button>
-        <button type="button" onClick={onCancel}>Cancelar</button>
+        <button type="button" onClick={onCancel}>
+          Cancelar
+        </button>
       </div>
     </DialogWrapper>
   );

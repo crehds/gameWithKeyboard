@@ -8,7 +8,9 @@ function makeMemoryStorage(initial = {}) {
   const store = { ...initial };
   return {
     getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
-    setItem: (key, value) => { store[key] = String(value); },
+    setItem: (key, value) => {
+      store[key] = String(value);
+    },
   };
 }
 

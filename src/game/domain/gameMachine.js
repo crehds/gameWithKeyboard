@@ -1,8 +1,6 @@
 import { isLetter } from './letters';
 import { DEFAULT_MODE, isGameMode, createGameMode } from './gameMode';
-import {
-  DEFAULT_ORDER, isInputOrder, createInputOrder,
-} from './inputOrder';
+import { DEFAULT_ORDER, isInputOrder, createInputOrder } from './inputOrder';
 import { pointsForKey, roundBonus } from './scoring';
 
 export const OPEN_SETUP = 'OPEN_SETUP';
@@ -17,9 +15,10 @@ export const QUIT = 'QUIT';
 
 export const openSetup = () => ({ type: OPEN_SETUP });
 export const cancelSetup = () => ({ type: CANCEL_SETUP });
-export const start = (modeId, firstLetter, orderId = DEFAULT_ORDER) => (
-  { type: START, payload: { modeId, firstLetter, orderId } }
-);
+export const start = (modeId, firstLetter, orderId = DEFAULT_ORDER) => ({
+  type: START,
+  payload: { modeId, firstLetter, orderId },
+});
 export const showNext = () => ({ type: SHOW_NEXT });
 export const clearHighlight = () => ({ type: CLEAR_HIGHLIGHT });
 export const pressKey = (letter) => ({ type: KEY, payload: { letter } });

@@ -39,15 +39,13 @@ describe('Key', () => {
     expect(screen.getByRole('button', { name: 'A' })).toHaveFocus();
   });
 
-  it.each([
-    ['idle'],
-    ['active'],
-    ['success'],
-    ['fail'],
-  ])('exposes its status as data-status="%s"', (status) => {
-    render(<Key letter="B" status={status} onPress={() => {}} />);
-    expect(screen.getByText('B')).toHaveAttribute('data-status', status);
-  });
+  it.each([['idle'], ['active'], ['success'], ['fail']])(
+    'exposes its status as data-status="%s"',
+    (status) => {
+      render(<Key letter="B" status={status} onPress={() => {}} />);
+      expect(screen.getByText('B')).toHaveAttribute('data-status', status);
+    },
+  );
 
   it('defaults to idle when no status is given', () => {
     render(<Key letter="C" onPress={() => {}} />);

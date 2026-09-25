@@ -13,9 +13,7 @@ const CONTENT = {
   },
 };
 
-function ResultDialog({
-  result, onRetry, onQuit, score, best, isNewRecord = false,
-}) {
+function ResultDialog({ result, onRetry, onQuit, score, best, isNewRecord = false }) {
   const dialogRef = useRef(null);
 
   useEffect(() => {
@@ -45,11 +43,17 @@ function ResultDialog({
       {isNewRecord && <p>Nuevo récord!</p>}
       <div>
         {result === 'won' ? (
-          <button type="button" onClick={onQuit}>Aceptar</button>
+          <button type="button" onClick={onQuit}>
+            Aceptar
+          </button>
         ) : (
           <>
-            <button type="button" onClick={onRetry}>Sí</button>
-            <button type="button" onClick={onQuit}>No</button>
+            <button type="button" onClick={onRetry}>
+              Sí
+            </button>
+            <button type="button" onClick={onQuit}>
+              No
+            </button>
           </>
         )}
       </div>

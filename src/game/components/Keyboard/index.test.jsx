@@ -12,10 +12,7 @@ describe('Keyboard', () => {
 
   it('forwards each letter status from getStatus', () => {
     render(
-      <Keyboard
-        getStatus={(letter) => (letter === 'A' ? 'success' : 'idle')}
-        onPress={() => {}}
-      />,
+      <Keyboard getStatus={(letter) => (letter === 'A' ? 'success' : 'idle')} onPress={() => {}} />,
     );
     expect(screen.getByText('A')).toHaveAttribute('data-status', 'success');
     expect(screen.getByText('B')).toHaveAttribute('data-status', 'idle');

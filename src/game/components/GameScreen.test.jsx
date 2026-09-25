@@ -1,21 +1,23 @@
 import React from 'react';
-import {
-  act, render, screen, within,
-} from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GameScreen from './GameScreen';
-import {
-  ROUND_INTRO_DELAY, INPUT_READY_DELAY, ROUND_COMPLETE_DELAY,
-} from '../domain/timing';
+import { ROUND_INTRO_DELAY, INPUT_READY_DELAY, ROUND_COMPLETE_DELAY } from '../domain/timing';
 import { createGameMode } from '../domain/gameMode';
 
 function advanceToAwaitingInput(round, modeId = 'expert') {
-  act(() => { vi.advanceTimersByTime(ROUND_INTRO_DELAY); });
+  act(() => {
+    vi.advanceTimersByTime(ROUND_INTRO_DELAY);
+  });
   const { flashInterval } = createGameMode(modeId).paceForRound(round);
   for (let i = 1; i <= round; i += 1) {
-    act(() => { vi.advanceTimersByTime(flashInterval); });
+    act(() => {
+      vi.advanceTimersByTime(flashInterval);
+    });
   }
-  act(() => { vi.advanceTimersByTime(INPUT_READY_DELAY); });
+  act(() => {
+    vi.advanceTimersByTime(INPUT_READY_DELAY);
+  });
 }
 
 // Presses the correct prefix for `round` (letters are all 'A' with a fixed
@@ -26,7 +28,9 @@ async function playRoundsToVictory(gameUser, round, totalRounds, modeId = 'exper
   advanceToAwaitingInput(round, modeId);
   await gameUser.keyboard('a'.repeat(round + 1));
   if (round < totalRounds - 1) {
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
     await playRoundsToVictory(gameUser, round + 1, totalRounds, modeId);
   }
 }
@@ -35,7 +39,9 @@ function makeMemoryStorage() {
   const store = {};
   return {
     getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
-    setItem: (key, value) => { store[key] = String(value); },
+    setItem: (key, value) => {
+      store[key] = String(value);
+    },
   };
 }
 
@@ -59,7 +65,9 @@ async function playRoundsThenFail(gameUser, round, roundsToPlay, modeId) {
   advanceToAwaitingInput(round, modeId);
   if (round < roundsToPlay) {
     await gameUser.keyboard('a'.repeat(round + 1));
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
     await playRoundsThenFail(gameUser, round + 1, roundsToPlay, modeId);
   } else {
     await gameUser.keyboard('b');
@@ -101,7 +109,9 @@ describe('GameScreen integration', () => {
 
     await user.keyboard('a');
 
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
 
     expect(screen.getByRole('status')).toHaveTextContent('Nivel 2 de 18');
 
@@ -135,7 +145,9 @@ describe('GameScreen integration', () => {
 
     await user.click(screen.getByRole('button', { name: 'A' }));
 
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
 
     expect(screen.getByRole('status')).toHaveTextContent('Nivel 2 de 18');
   });
@@ -177,7 +189,9 @@ describe('GameScreen integration', () => {
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
     await user.click(screen.getByRole('button', { name: 'Jugar' }));
 
-    expect(screen.getByRole('status')).toHaveTextContent(`Nivel 1 de ${createGameMode('expert').rounds}`);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      `Nivel 1 de ${createGameMode('expert').rounds}`,
+    );
 
     advanceToAwaitingInput(0);
     expect(screen.getByText('A')).toHaveAttribute('data-status', 'active');
@@ -188,7 +202,9 @@ describe('GameScreen integration', () => {
 
     await user.click(screen.getByRole('button', { name: 'Sí' }));
 
-    expect(screen.getByRole('status')).toHaveTextContent(`Nivel 1 de ${createGameMode('expert').rounds}`);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      `Nivel 1 de ${createGameMode('expert').rounds}`,
+    );
 
     advanceToAwaitingInput(0);
     expect(screen.getByText('B')).toHaveAttribute('data-status', 'active');
@@ -232,7 +248,9 @@ describe('GameScreen integration', () => {
 
     expect(screen.getByText('Puntos: 70')).toBeInTheDocument();
 
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
     advanceToAwaitingInput(1, 'expert');
     await user.keyboard('b'); // wrong key: ends the game, score stays 70
     await act(async () => {});
@@ -279,13 +297,17 @@ describe('GameScreen integration', () => {
     advanceToAwaitingInput(0, 'rookie');
     await user.keyboard('a');
 
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
     expect(screen.getByRole('status')).toHaveTextContent('Nivel 2');
 
     advanceToAwaitingInput(1, 'rookie');
     await user.keyboard('ba'); // reverse order: sequence is A,B, so expects B then A
 
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
 
     expect(screen.getByRole('status')).toHaveTextContent('Nivel 3');
   });
@@ -307,7 +329,9 @@ describe('GameScreen integration', () => {
 
     advanceToAwaitingInput(0, 'expert');
     await user.keyboard('a'); // expert x2 * reverse x1.5 = x3: 30 + 75 = 105
-    act(() => { vi.advanceTimersByTime(ROUND_COMPLETE_DELAY); });
+    act(() => {
+      vi.advanceTimersByTime(ROUND_COMPLETE_DELAY);
+    });
     advanceToAwaitingInput(1, 'expert');
     await user.keyboard('b'); // wrong key: ends the game, score stays 105
     await act(async () => {});

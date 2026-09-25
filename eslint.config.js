@@ -7,6 +7,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import { flatConfigs as importXFlatConfigs, createNodeResolver } from 'eslint-plugin-import-x';
 import vitestPlugin from '@vitest/eslint-plugin';
 import globals from 'globals';
+import eslintConfigPrettier from 'eslint-config-prettier';
 
 // eslint-plugin-react and eslint-plugin-jsx-a11y still use the legacy
 // (pre-flat-config) plugin API that ESLint 10 removed (context.getFilename,
@@ -48,9 +49,7 @@ export default defineConfig([
   {
     ...importXFlatConfigs.recommended,
     settings: {
-      'import-x/resolver-next': [
-        createNodeResolver({ extensions: ['.js', '.jsx'] }),
-      ],
+      'import-x/resolver-next': [createNodeResolver({ extensions: ['.js', '.jsx'] })],
     },
     rules: {
       ...importXFlatConfigs.recommended.rules,
@@ -59,15 +58,19 @@ export default defineConfig([
       // default as `styled` (the whole codebase's idiom) is correct, not a
       // mistake, so this rule is a false positive for that pattern here.
       'import-x/no-named-as-default': 'off',
-      'import-x/no-restricted-paths': ['error', {
-        zones: [
-          {
-            target: './src/game/domain',
-            from: ['./src/game/components', './src/game/hooks', './src/game/infrastructure'],
-            message: 'The domain layer must stay pure: it cannot depend on components, hooks or infrastructure.',
-          },
-        ],
-      }],
+      'import-x/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            {
+              target: './src/game/domain',
+              from: ['./src/game/components', './src/game/hooks', './src/game/infrastructure'],
+              message:
+                'The domain layer must stay pure: it cannot depend on components, hooks or infrastructure.',
+            },
+          ],
+        },
+      ],
     },
   },
 
@@ -87,10 +90,13 @@ export default defineConfig([
       'object-shorthand': 'error',
       'prefer-template': 'error',
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
-      'react/require-default-props': ['error', {
-        forbidDefaultForRequired: true,
-        functions: 'defaultArguments',
-      }],
+      'react/require-default-props': [
+        'error',
+        {
+          forbidDefaultForRequired: true,
+          functions: 'defaultArguments',
+        },
+      ],
       'import-x/no-extraneous-dependencies': ['error', { devDependencies: false }],
     },
   },
@@ -120,4 +126,8 @@ export default defineConfig([
       'import-x/no-extraneous-dependencies': ['error', { devDependencies: true }],
     },
   },
+
+  // Must stay last: turns off every stylistic rule Prettier already owns,
+  // so ESLint and Prettier never disagree about formatting.
+  eslintConfigPrettier,
 ]);

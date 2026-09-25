@@ -1,6 +1,4 @@
-import {
-  MODE_IDS, DEFAULT_MODE, isGameMode, createGameMode,
-} from './gameMode';
+import { MODE_IDS, DEFAULT_MODE, isGameMode, createGameMode } from './gameMode';
 
 describe('gameMode', () => {
   it('orders mode ids from easiest to hardest, with endless last', () => {
