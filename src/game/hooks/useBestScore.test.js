@@ -90,7 +90,8 @@ describe('useBestScore', () => {
   });
 
   it('forgets a pending record when the mode changes, without saving it under the new mode', () => {
-    const storage = makeMemoryStorage({ [`${KEY_PREFIX}expert`]: '999' });
+    // Expert starts empty, so a leaked save of the rookie record would show up.
+    const storage = makeMemoryStorage();
     const { result, rerender } = renderHook(
       ({ modeId, score, finished }) => useBestScore(modeId, score, finished, storage),
       { initialProps: { modeId: 'rookie', score: 0, finished: false } },
@@ -102,8 +103,9 @@ describe('useBestScore', () => {
     rerender({ modeId: 'expert', score: 40, finished: true });
 
     expect(result.current.isNewRecord).toBe(false);
-    expect(result.current.best).toBe(999);
-    expect(storage.getItem(`${KEY_PREFIX}expert`)).toBe('999');
+    expect(result.current.best).toBe(0);
+    expect(storage.getItem(`${KEY_PREFIX}expert`)).toBeNull();
+    expect(storage.getItem(`${KEY_PREFIX}rookie`)).toBe('40');
   });
 
   it('saves at most once per finished game, even under StrictMode double-invocation', () => {
