@@ -194,9 +194,11 @@ function handleShowNext(state: GameState): GameState {
     return { ...state, phase: 'awaitingInput', inputIndex: 0 };
   }
   const letter = state.sequence[nextShowIndex];
-  // noUncheckedIndexedAccess guard: nextShowIndex is within [0, round], which
-  // is always a valid sequence index; a miss means an invariant broke.
-  if (letter === undefined) return state;
+  // nextShowIndex is within [0, round], always a valid sequence index unless an
+  // invariant broke. Even then, advance with nothing lit: the timers only
+  // schedule the next SHOW_NEXT when showIndex changes, so returning the same
+  // state would freeze the game.
+  if (letter === undefined) return { ...state, showIndex: nextShowIndex, highlight: null };
   return {
     ...state,
     showIndex: nextShowIndex,

@@ -137,6 +137,17 @@ describe('gameMachine', () => {
       expect(next.inputIndex).toBe(0);
     });
 
+    it('keeps the show loop moving, with nothing lit, if the sequence runs short', () => {
+      // Unreachable through the reducer's own transitions. The timers only
+      // schedule the next SHOW_NEXT when showIndex changes, so returning the
+      // same state here would freeze the game in 'showing'.
+      const shortSequence: GameState = { ...showingState, sequence: ['A'], showIndex: 0 };
+      const next = gameReducer(shortSequence, showNext());
+      expect(next.showIndex).toBe(1);
+      expect(next.highlight).toBeNull();
+      expect(next.phase).toBe('showing');
+    });
+
     it('is ignored outside showing', () => {
       const state: GameState = { ...initialState, phase: 'idle' };
       expect(gameReducer(state, showNext())).toBe(state);
