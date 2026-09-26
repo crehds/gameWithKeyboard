@@ -39,7 +39,7 @@ describe('Key', () => {
     expect(screen.getByRole('button', { name: 'A' })).toHaveFocus();
   });
 
-  it.each([['idle'], ['active'], ['success'], ['fail']])(
+  it.each([['idle'], ['active'], ['success'], ['fail']] as const)(
     'exposes its status as data-status="%s"',
     (status) => {
       render(<Key letter="B" status={status} onPress={() => {}} />);
@@ -50,5 +50,21 @@ describe('Key', () => {
   it('defaults to idle when no status is given', () => {
     render(<Key letter="C" onPress={() => {}} />);
     expect(screen.getByText('C')).toHaveAttribute('data-status', 'idle');
+  });
+
+  describe('types', () => {
+    it('rejects a status outside idle|active|success|fail', () => {
+      assertType(
+        // @ts-expect-error 'pulse' is not a member of KeyStatus
+        <Key letter="A" status="pulse" onPress={() => {}} />,
+      );
+    });
+
+    it('requires onPress', () => {
+      assertType(
+        // @ts-expect-error onPress is required
+        <Key letter="A" status="idle" />,
+      );
+    });
   });
 });

@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import RoundBanner from '.';
+import type { RoundBannerProps } from '.';
 
 describe('RoundBanner', () => {
   it('shows the current round out of the total, both one-based', () => {
@@ -28,5 +29,13 @@ describe('RoundBanner', () => {
     const status = screen.getByRole('status');
     expect(status).toHaveTextContent('Nivel 1 de 14');
     expect(status).toHaveTextContent('¡Al revés!');
+  });
+
+  describe('types', () => {
+    it('requires round and total, and makes reversed optional', () => {
+      expectTypeOf<RoundBannerProps['round']>().toEqualTypeOf<number>();
+      expectTypeOf<RoundBannerProps['total']>().toEqualTypeOf<number>();
+      expectTypeOf<RoundBannerProps['reversed']>().toEqualTypeOf<boolean | undefined>();
+    });
   });
 });

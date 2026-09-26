@@ -67,4 +67,13 @@ describe('ResultDialog', () => {
     expect(screen.getByText('Récord: 600')).toBeInTheDocument();
     expect(screen.getByText('Nuevo récord!')).toBeInTheDocument();
   });
+
+  describe('types', () => {
+    it('rejects a result outside won|lost', () => {
+      assertType(
+        // @ts-expect-error 'draw' is not a member of ResultDialogProps['result']
+        <ResultDialog result="draw" onRetry={() => {}} onQuit={() => {}} score={0} best={0} />,
+      );
+    });
+  });
 });

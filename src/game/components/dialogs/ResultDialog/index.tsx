@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
 import DialogWrapper from '../DialogWrapper';
+import type { Phase } from '../../../domain/gameMachine';
 
-const CONTENT = {
+type Result = Extract<Phase, 'won' | 'lost'>;
+
+const CONTENT: Record<Result, { title: string; text: string }> = {
   won: {
     title: 'Ganaste!',
     text: 'Tu memoria es de otro nivel',
@@ -13,14 +15,31 @@ const CONTENT = {
   },
 };
 
-function ResultDialog({ result, onRetry, onQuit, score, best, isNewRecord = false }) {
-  const dialogRef = useRef(null);
+export interface ResultDialogProps {
+  result: Result;
+  onRetry: () => void;
+  onQuit: () => void;
+  score: number;
+  best: number;
+  isNewRecord?: boolean;
+}
+
+function ResultDialog({
+  result,
+  onRetry,
+  onQuit,
+  score,
+  best,
+  isNewRecord = false,
+}: ResultDialogProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
+    if (!dialog) return undefined;
     dialog.showModal();
 
-    function handleCancel(event) {
+    function handleCancel(event: Event) {
       event.preventDefault();
       onQuit();
     }
@@ -60,14 +79,5 @@ function ResultDialog({ result, onRetry, onQuit, score, best, isNewRecord = fals
     </DialogWrapper>
   );
 }
-
-ResultDialog.propTypes = {
-  result: PropTypes.oneOf(['won', 'lost']).isRequired,
-  onRetry: PropTypes.func.isRequired,
-  onQuit: PropTypes.func.isRequired,
-  score: PropTypes.number.isRequired,
-  best: PropTypes.number.isRequired,
-  isNewRecord: PropTypes.bool,
-};
 
 export default ResultDialog;

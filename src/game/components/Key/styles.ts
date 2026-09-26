@@ -1,4 +1,6 @@
 import styled, { keyframes, css } from 'styled-components';
+import type { RuleSet } from 'styled-components';
+import type { KeyStatus } from '../../domain/gameMachine';
 
 export const Appear = keyframes`
   0% {
@@ -11,7 +13,8 @@ export const Appear = keyframes`
   }
 `;
 
-const STATUS_STYLES = {
+const STATUS_STYLES: Record<KeyStatus, RuleSet> = {
+  idle: css``,
   active: css`
     background-color: white;
     color: black;
@@ -28,7 +31,7 @@ const STATUS_STYLES = {
   `,
 };
 
-export const KeyWrapper = styled.button`
+export const KeyWrapper = styled.button<{ $status: KeyStatus }>`
   animation: ${Appear} 2.5s;
   display: flex;
   align-items: center;

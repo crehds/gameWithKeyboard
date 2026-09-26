@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DifficultyDialog from '.';
+import type { DifficultyDialogProps } from '.';
+import type { ModeId } from '../../../domain/gameMode';
+import type { OrderId } from '../../../domain/inputOrder';
 
 describe('DifficultyDialog', () => {
   it('opens as a modal dialog with the configuration title and label', () => {
@@ -85,5 +88,16 @@ describe('DifficultyDialog', () => {
     screen.getByRole('dialog').dispatchEvent(new Event('cancel', { cancelable: true }));
 
     expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  describe('types', () => {
+    it('pins onStart to (modeId: ModeId, orderId: OrderId) => void', () => {
+      // Type-only form (not expectTypeOf(instance.onStart)): extracting a
+      // method-shorthand property as a bare value trips
+      // @typescript-eslint/unbound-method.
+      expectTypeOf<DifficultyDialogProps['onStart']>().toEqualTypeOf<
+        (modeId: ModeId, orderId: OrderId) => void
+      >();
+    });
   });
 });

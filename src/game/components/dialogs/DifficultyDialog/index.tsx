@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
-import { MODE_IDS, DEFAULT_MODE } from '../../../domain/gameMode';
+import { MODE_IDS, DEFAULT_MODE, isGameMode } from '../../../domain/gameMode';
+import type { ModeId } from '../../../domain/gameMode';
 import { DEFAULT_ORDER, REVERSE_ORDER } from '../../../domain/inputOrder';
+import type { OrderId } from '../../../domain/inputOrder';
 import DialogWrapper from '../DialogWrapper';
 
-const LABELS = {
+const LABELS: Record<ModeId, string> = {
   rookie: 'Novato - 10 niveles',
   normal: 'Normal - 14 niveles',
   expert: 'Experto - 18 niveles',
@@ -12,16 +13,22 @@ const LABELS = {
   endless: 'Infinito - sin límite',
 };
 
-function DifficultyDialog({ onStart, onCancel }) {
-  const dialogRef = useRef(null);
-  const [modeId, setModeId] = useState(DEFAULT_MODE);
+export interface DifficultyDialogProps {
+  onStart: (modeId: ModeId, orderId: OrderId) => void;
+  onCancel: () => void;
+}
+
+function DifficultyDialog({ onStart, onCancel }: DifficultyDialogProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [modeId, setModeId] = useState<ModeId>(DEFAULT_MODE);
   const [reversed, setReversed] = useState(false);
 
   useEffect(() => {
     const dialog = dialogRef.current;
+    if (!dialog) return undefined;
     dialog.showModal();
 
-    function handleCancel(event) {
+    function handleCancel(event: Event) {
       event.preventDefault();
       onCancel();
     }
@@ -41,7 +48,9 @@ function DifficultyDialog({ onStart, onCancel }) {
         <select
           id="difficulty-select"
           value={modeId}
-          onChange={(event) => setModeId(event.target.value)}
+          onChange={(event) => {
+            if (isGameMode(event.target.value)) setModeId(event.target.value);
+          }}
         >
           {MODE_IDS.map((id) => (
             <option key={id} value={id}>
@@ -73,10 +82,5 @@ function DifficultyDialog({ onStart, onCancel }) {
     </DialogWrapper>
   );
 }
-
-DifficultyDialog.propTypes = {
-  onStart: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-};
 
 export default DifficultyDialog;

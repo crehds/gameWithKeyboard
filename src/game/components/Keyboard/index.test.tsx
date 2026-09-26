@@ -1,6 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Keyboard from '.';
+import type { KeyboardProps } from '.';
+import type { Letter } from '../../domain/letters';
+import type { KeyStatus } from '../../domain/gameMachine';
 
 describe('Keyboard', () => {
   it('renders the 26 letters of the QWERTY layout', () => {
@@ -26,5 +29,12 @@ describe('Keyboard', () => {
     await user.click(screen.getByRole('button', { name: 'A' }));
 
     expect(onPress).toHaveBeenCalledWith('A');
+  });
+
+  describe('types', () => {
+    it('types getStatus and onPress after the domain contracts', () => {
+      expectTypeOf<KeyboardProps['getStatus']>().toEqualTypeOf<(letter: Letter) => KeyStatus>();
+      expectTypeOf<KeyboardProps['onPress']>().toEqualTypeOf<(letter: Letter) => void>();
+    });
   });
 });

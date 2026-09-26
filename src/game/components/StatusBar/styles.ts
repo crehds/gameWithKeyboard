@@ -12,7 +12,7 @@ const Wave = keyframes`
   }
 `;
 
-const StatusBarWrapper = styled.div`
+const StatusBarWrapper = styled.div<{ $playing: boolean }>`
   position: absolute;
   display: flex;
   align-items: center;

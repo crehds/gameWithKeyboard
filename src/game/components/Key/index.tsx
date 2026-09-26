@@ -1,7 +1,14 @@
-import PropTypes from 'prop-types';
 import { KeyWrapper } from './styles';
+import type { Letter } from '../../domain/letters';
+import type { KeyStatus } from '../../domain/gameMachine';
 
-function Key({ letter, status = 'idle', onPress }) {
+export interface KeyProps {
+  letter: Letter;
+  status?: KeyStatus;
+  onPress: (letter: Letter) => void;
+}
+
+function Key({ letter, status = 'idle', onPress }: KeyProps) {
   return (
     <KeyWrapper
       type="button"
@@ -16,11 +23,5 @@ function Key({ letter, status = 'idle', onPress }) {
     </KeyWrapper>
   );
 }
-
-Key.propTypes = {
-  letter: PropTypes.string.isRequired,
-  status: PropTypes.oneOf(['idle', 'active', 'success', 'fail']),
-  onPress: PropTypes.func.isRequired,
-};
 
 export default Key;

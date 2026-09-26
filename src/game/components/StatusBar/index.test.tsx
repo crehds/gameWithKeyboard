@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import StatusBar from '.';
+import type { StatusBarProps } from '.';
 
 describe('StatusBar', () => {
   it('shows a play button and "Apagado" when not playing', () => {
@@ -48,5 +49,12 @@ describe('StatusBar', () => {
     await user.click(screen.getByRole('button', { name: 'refresh' }));
 
     expect(onOpenSetup).toHaveBeenCalledTimes(1);
+  });
+
+  describe('types', () => {
+    it('requires playing and makes score optional', () => {
+      expectTypeOf<StatusBarProps['playing']>().toEqualTypeOf<boolean>();
+      expectTypeOf<StatusBarProps['score']>().toEqualTypeOf<number | undefined>();
+    });
   });
 });

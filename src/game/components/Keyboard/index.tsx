@@ -1,9 +1,15 @@
-import PropTypes from 'prop-types';
 import Row from '../Row';
 import LAYOUT from './layout';
 import KeyboardWrapper from './styles';
+import type { Letter } from '../../domain/letters';
+import type { KeyStatus } from '../../domain/gameMachine';
 
-function Keyboard({ getStatus, onPress }) {
+export interface KeyboardProps {
+  getStatus: (letter: Letter) => KeyStatus;
+  onPress: (letter: Letter) => void;
+}
+
+function Keyboard({ getStatus, onPress }: KeyboardProps) {
   return (
     <KeyboardWrapper>
       {LAYOUT.map((row) => (
@@ -12,10 +18,5 @@ function Keyboard({ getStatus, onPress }) {
     </KeyboardWrapper>
   );
 }
-
-Keyboard.propTypes = {
-  getStatus: PropTypes.func.isRequired,
-  onPress: PropTypes.func.isRequired,
-};
 
 export default Keyboard;
