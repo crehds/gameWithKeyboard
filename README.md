@@ -29,3 +29,7 @@ Runs the test suite in watch mode.
 ### `npm run lint`
 
 Lints the `src` folder with ESLint.
+
+### `npm run typecheck`
+
+Type-checks the project with `tsc --noEmit`.

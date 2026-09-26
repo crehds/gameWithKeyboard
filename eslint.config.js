@@ -5,6 +5,7 @@ import react from 'eslint-plugin-react';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import { flatConfigs as importXFlatConfigs, createNodeResolver } from 'eslint-plugin-import-x';
+import tseslint from 'typescript-eslint';
 import vitestPlugin from '@vitest/eslint-plugin';
 import globals from 'globals';
 import eslintConfigPrettier from 'eslint-config-prettier';
@@ -49,7 +50,16 @@ export default defineConfig([
   {
     ...importXFlatConfigs.recommended,
     settings: {
-      'import-x/resolver-next': [createNodeResolver({ extensions: ['.js', '.jsx'] })],
+      'import-x/resolver-next': [
+        createNodeResolver({ extensions: ['.js', '.jsx', '.ts', '.tsx'] }),
+      ],
+      // Lets import-x parse the .ts/.tsx files the resolver above finds (for
+      // example a .jsx file importing a .ts module) with the TypeScript
+      // parser instead of the default one, which cannot read TS syntax.
+      // `@typescript-eslint/parser` comes from the `typescript-eslint`
+      // dependency, so no separate resolver package is needed.
+      'import-x/extensions': ['.js', '.jsx', '.ts', '.tsx'],
+      'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] },
     },
     rules: {
       ...importXFlatConfigs.recommended.rules,
@@ -75,7 +85,7 @@ export default defineConfig([
   },
 
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
@@ -101,10 +111,30 @@ export default defineConfig([
     },
   },
 
+  // Type-aware linting for TypeScript files only, using the project service
+  // (finds each file's tsconfig automatically instead of listing paths).
+  // recommendedTypeChecked, not strictTypeChecked: the stricter preset's
+  // no-unnecessary-condition would flag this project's intentional runtime
+  // guards around untrusted DOM/localStorage values.
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [tseslint.configs.recommendedTypeChecked],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      // TypeScript already checks component props at compile time.
+      'react/prop-types': 'off',
+    },
+  },
+
   // Test files: vitest's own recommended rules and globals replace the old
   // hand-listed test globals, and may import devDependencies freely.
   {
-    files: ['**/*.test.{js,jsx}', 'src/setupTests.js'],
+    files: ['**/*.test.{js,jsx,ts,tsx}', 'src/setupTests.ts'],
     plugins: { vitest: vitestPlugin },
     rules: {
       ...vitestPlugin.configs.recommended.rules,

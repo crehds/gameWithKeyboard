@@ -30,6 +30,15 @@ if (
 // setTimeout(0) and only advances fake timers when a global `jest` exists.
 // Vitest defines none, so under vi.useFakeTimers() that timeout never fires
 // and every awaited click or keypress hangs. Forward that call to Vitest.
+declare global {
+  // `var` (not `let`/`const`) is required here: only a `var` declaration in an
+  // ambient `declare global` block becomes a property of `globalThis`, which
+  // is the assignment target below. This is an ambient type declaration, not
+  // runtime code, so the no-var lint rule does not (and should not) flag it.
+  // It is `undefined` outside tests, so the type says so too.
+  var jest: { advanceTimersByTime: (ms: number) => void } | undefined;
+}
+
 globalThis.jest = {
   advanceTimersByTime: (ms) => vi.advanceTimersByTime(ms),
 };
