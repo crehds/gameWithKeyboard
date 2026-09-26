@@ -5,6 +5,7 @@ import {
   isInputOrder,
   createInputOrder,
 } from './inputOrder';
+import type { OrderId, InputOrder } from './inputOrder';
 
 describe('inputOrder', () => {
   it('offers forward and reverse', () => {
@@ -52,7 +53,7 @@ describe('inputOrder', () => {
 
     describe('forward', () => {
       const order = createInputOrder('forward');
-      const sequence = ['A', 'B', 'C'];
+      const sequence = ['A', 'B', 'C'] as const;
 
       it('expects the letter at inputIndex', () => {
         expect(order.expectedLetter(sequence, 0)).toBe('A');
@@ -67,7 +68,7 @@ describe('inputOrder', () => {
 
     describe('reverse', () => {
       const order = createInputOrder('reverse');
-      const sequence = ['A', 'B', 'C'];
+      const sequence = ['A', 'B', 'C'] as const;
 
       it('expects the letter counting back from the end', () => {
         expect(order.expectedLetter(sequence, 0)).toBe('C');
@@ -78,6 +79,26 @@ describe('inputOrder', () => {
       it('has a scoreMultiplier of 1.5', () => {
         expect(order.scoreMultiplier).toBe(1.5);
       });
+    });
+  });
+
+  describe('types', () => {
+    it('pins the exact OrderId union', () => {
+      expectTypeOf<OrderId>().toEqualTypeOf<'forward' | 'reverse'>();
+    });
+
+    it('isInputOrder narrows unknown to OrderId', () => {
+      expectTypeOf(isInputOrder).guards.toEqualTypeOf<OrderId>();
+    });
+
+    it('createInputOrder returns InputOrder | null for an unrecognized id, and a non-null InputOrder for a known OrderId', () => {
+      expectTypeOf(createInputOrder('sideways')).toEqualTypeOf<InputOrder | null>();
+      expectTypeOf(createInputOrder('forward')).toEqualTypeOf<InputOrder>();
+    });
+
+    it('rejects an order id outside the union when typed as OrderId', () => {
+      // @ts-expect-error 'sideways' is not a member of OrderId
+      assertType<OrderId>('sideways');
     });
   });
 });

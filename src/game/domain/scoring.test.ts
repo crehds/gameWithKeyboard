@@ -1,3 +1,5 @@
+import type { ModeId } from './gameMode';
+import type { OrderId } from './inputOrder';
 import { pointsForKey, roundBonus, bestScoreSlot } from './scoring';
 
 describe('scoring', () => {
@@ -34,6 +36,30 @@ describe('scoring', () => {
 
     it('suffixes the slot with the order id for a non-default order', () => {
       expect(bestScoreSlot('rookie', 'reverse')).toBe('rookie.reverse');
+    });
+  });
+
+  describe('types', () => {
+    it('types pointsForKey and roundBonus as (number, number) => number', () => {
+      expectTypeOf(pointsForKey).parameters.toEqualTypeOf<[number, number]>();
+      expectTypeOf(pointsForKey).returns.toBeNumber();
+      expectTypeOf(roundBonus).parameters.toEqualTypeOf<[number, number]>();
+      expectTypeOf(roundBonus).returns.toBeNumber();
+    });
+
+    it('types bestScoreSlot as (ModeId, OrderId) => string', () => {
+      expectTypeOf(bestScoreSlot).parameters.toEqualTypeOf<[ModeId, OrderId]>();
+      expectTypeOf(bestScoreSlot).returns.toBeString();
+    });
+
+    it('rejects an unknown mode id for a best-score slot', () => {
+      // @ts-expect-error 'legendary' is not a member of ModeId
+      assertType(bestScoreSlot('legendary', 'forward'));
+    });
+
+    it('rejects a non-numeric round', () => {
+      // @ts-expect-error round must be a number
+      assertType(pointsForKey('0', 1));
     });
   });
 });

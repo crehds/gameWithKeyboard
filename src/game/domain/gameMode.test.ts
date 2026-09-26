@@ -1,4 +1,5 @@
 import { MODE_IDS, DEFAULT_MODE, isGameMode, createGameMode } from './gameMode';
+import type { ModeId, GameMode } from './gameMode';
 
 describe('gameMode', () => {
   it('orders mode ids from easiest to hardest, with endless last', () => {
@@ -40,7 +41,7 @@ describe('gameMode', () => {
       ['normal', 14],
       ['expert', 18],
       ['eidetic', 22],
-    ])('builds %s with %i rounds', (id, rounds) => {
+    ] as const)('builds %s with %i rounds', (id, rounds) => {
       const mode = createGameMode(id);
       expect(mode.id).toBe(id);
       expect(mode.rounds).toBe(rounds);
@@ -51,7 +52,7 @@ describe('gameMode', () => {
     });
 
     it('is not endless for the four fixed-length modes', () => {
-      ['rookie', 'normal', 'expert', 'eidetic'].forEach((id) => {
+      (['rookie', 'normal', 'expert', 'eidetic'] as const).forEach((id) => {
         expect(createGameMode(id).isEndless).toBe(false);
       });
     });
@@ -99,6 +100,28 @@ describe('gameMode', () => {
         it(`is ${EXPECTED[id]} for ${id}`, () => {
           expect(createGameMode(id).scoreMultiplier).toBe(EXPECTED[id]);
         });
+      });
+    });
+
+    describe('types', () => {
+      it('pins the exact ModeId union', () => {
+        expectTypeOf<ModeId>().toEqualTypeOf<
+          'rookie' | 'normal' | 'expert' | 'eidetic' | 'endless'
+        >();
+      });
+
+      it('isGameMode narrows unknown to ModeId', () => {
+        expectTypeOf(isGameMode).guards.toEqualTypeOf<ModeId>();
+      });
+
+      it('createGameMode returns a non-null GameMode for a known ModeId, and GameMode | null for an unrecognized id', () => {
+        expectTypeOf(createGameMode('rookie')).toEqualTypeOf<GameMode>();
+        expectTypeOf(createGameMode('legendary')).toEqualTypeOf<GameMode | null>();
+      });
+
+      it('rejects a mode id outside the union when typed as ModeId', () => {
+        // @ts-expect-error 'legendary' is not a member of ModeId
+        assertType<ModeId>('legendary');
       });
     });
 

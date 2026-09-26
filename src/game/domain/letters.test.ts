@@ -1,4 +1,5 @@
 import { ALPHABET, isLetter, toLetter, randomLetter, generateSequence } from './letters';
+import type { Letter } from './letters';
 
 describe('letters', () => {
   it('contains all 26 uppercase letters from A to Z', () => {
@@ -57,6 +58,28 @@ describe('letters', () => {
       const sequence = generateSequence(3, random);
       expect(sequence).toEqual(['A', 'A', 'A']);
       expect(random).toHaveBeenCalledTimes(3);
+    });
+  });
+
+  describe('types', () => {
+    it('Letter accepts the literal "A" and rejects "a"', () => {
+      assertType<Letter>('A');
+      // @ts-expect-error 'a' is lowercase, not a member of the Letter union
+      assertType<Letter>('a');
+    });
+
+    it('isLetter narrows unknown to Letter', () => {
+      expectTypeOf(isLetter).guards.toEqualTypeOf<Letter>();
+    });
+
+    it('toLetter accepts unknown input and returns Letter | null', () => {
+      expectTypeOf(toLetter).parameter(0).toBeUnknown();
+      expectTypeOf(toLetter).returns.toEqualTypeOf<Letter | null>();
+    });
+
+    it('randomLetter and generateSequence return Letter values', () => {
+      expectTypeOf(randomLetter).returns.toEqualTypeOf<Letter>();
+      expectTypeOf(generateSequence).returns.toEqualTypeOf<Letter[]>();
     });
   });
 });

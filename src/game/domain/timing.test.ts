@@ -1,4 +1,5 @@
 import * as timing from './timing';
+import type { Pace, RoundPace } from './timing';
 
 const { paceForRound, ...delays } = timing;
 
@@ -53,6 +54,19 @@ describe('timing', () => {
     it('shows the letter for half the flash interval', () => {
       const { flashInterval, showDuration } = paceForRound(pace, 2);
       expect(showDuration).toBe(Math.round(flashInterval / 2));
+    });
+  });
+
+  describe('types', () => {
+    it('types paceForRound as (Pace, number) => RoundPace', () => {
+      expectTypeOf(paceForRound).parameter(0).toEqualTypeOf<Pace>();
+      expectTypeOf(paceForRound).parameter(1).toBeNumber();
+      expectTypeOf(paceForRound).returns.toEqualTypeOf<RoundPace>();
+    });
+
+    it('rejects a pace missing a required field', () => {
+      // @ts-expect-error Pace requires base, decay and min together
+      assertType<Pace>({ base: 1000, min: 400 });
     });
   });
 });

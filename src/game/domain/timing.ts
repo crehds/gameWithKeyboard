@@ -10,13 +10,24 @@ export const INPUT_READY_DELAY = 400;
 export const FEEDBACK_HIGHLIGHT_DURATION = 500;
 export const ROUND_COMPLETE_DELAY = 1000;
 
+export interface Pace {
+  base: number;
+  decay: number;
+  min: number;
+}
+
+export interface RoundPace {
+  flashInterval: number;
+  showDuration: number;
+}
+
 // Pure: given a mode's { base, decay, min } pace profile and the current
 // round (0-based), returns how long a flash stays spaced from the next one
 // (flashInterval) and how long the shown letter stays highlighted
 // (showDuration, half of the interval). The interval decays exponentially
 // round over round and is clamped at `min` so the game never becomes
 // unplayable.
-export function paceForRound(pace, round) {
+export function paceForRound(pace: Pace, round: number): RoundPace {
   const { base, decay, min } = pace;
   const flashInterval = Math.max(min, Math.round(base * decay ** round));
   const showDuration = Math.round(flashInterval / 2);

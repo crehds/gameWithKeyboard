@@ -139,6 +139,12 @@ export default defineConfig([
     rules: {
       ...vitestPlugin.configs.recommended.rules,
       'import-x/no-extraneous-dependencies': ['error', { devDependencies: true }],
+      // Type-level tests assert with expectTypeOf/assertType instead of expect;
+      // without this, expect-expect can't see those as real assertions.
+      'vitest/expect-expect': [
+        'error',
+        { assertFunctionNames: ['expect', 'expectTypeOf', 'assertType'] },
+      ],
     },
     languageOptions: {
       globals: globals.vitest,
