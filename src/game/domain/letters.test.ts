@@ -50,6 +50,11 @@ describe('letters', () => {
         expect(randomLetter(() => (i + 0.5) / 26)).toBe(letter);
       });
     });
+
+    it('throws a RangeError when random() breaks its [0, 1) contract', () => {
+      expect(() => randomLetter(() => 1)).toThrow(RangeError);
+      expect(() => randomLetter(() => -0.1)).toThrow(RangeError);
+    });
   });
 
   describe('generateSequence', () => {
