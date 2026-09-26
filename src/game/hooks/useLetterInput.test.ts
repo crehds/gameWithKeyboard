@@ -1,7 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import useLetterInput from './useLetterInput';
+import type { Letter } from '../domain/letters';
 
-function dispatchKeyDown(overrides = {}) {
+function dispatchKeyDown(overrides: KeyboardEventInit = {}): void {
   const event = new KeyboardEvent('keydown', { key: 'a', bubbles: true, ...overrides });
   window.dispatchEvent(event);
 }
@@ -77,5 +78,16 @@ describe('useLetterInput', () => {
     dispatchKeyDown({ key: 'a' });
 
     expect(onLetter).not.toHaveBeenCalled();
+  });
+
+  describe('types', () => {
+    it('gives the callback a Letter', () => {
+      expectTypeOf(useLetterInput).parameter(0).toEqualTypeOf<(letter: Letter) => void>();
+    });
+
+    it('rejects a callback whose parameter cannot accept every Letter value', () => {
+      // @ts-expect-error the callback parameter must accept every Letter, not just numbers
+      assertType<Parameters<typeof useLetterInput>[0]>((letter: number) => letter);
+    });
   });
 });

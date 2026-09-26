@@ -12,9 +12,13 @@ import {
   retry,
   quit,
 } from '../domain/gameMachine';
+import type { GameState } from '../domain/gameMachine';
 import { randomLetter } from '../domain/letters';
+import type { Letter } from '../domain/letters';
 import { createGameMode } from '../domain/gameMode';
+import type { ModeId } from '../domain/gameMode';
 import { DEFAULT_ORDER, createInputOrder } from '../domain/inputOrder';
+import type { OrderId } from '../domain/inputOrder';
 import {
   ROUND_INTRO_DELAY,
   INPUT_READY_DELAY,
@@ -22,7 +26,17 @@ import {
   ROUND_COMPLETE_DELAY,
 } from '../domain/timing';
 
-export default function useGame(random = Math.random) {
+export interface UseGameResult {
+  state: GameState;
+  openSetup(): void;
+  start(modeId: ModeId, orderId?: OrderId): void;
+  cancelSetup(): void;
+  retry(): void;
+  quit(): void;
+  pressLetter(letter: Letter): void;
+}
+
+export default function useGame(random: () => number = Math.random): UseGameResult {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const { phase, round, showIndex, highlight, modeId } = state;
 
@@ -73,17 +87,20 @@ export default function useGame(random = Math.random) {
   const openSetupAction = useCallback(() => dispatch(openSetup()), []);
   const cancelSetupAction = useCallback(() => dispatch(cancelSetup()), []);
 
-  const startAction = useCallback((selectedModeId, selectedOrderId = DEFAULT_ORDER) => {
-    if (!createGameMode(selectedModeId) || !createInputOrder(selectedOrderId)) return;
-    dispatch(start(selectedModeId, randomLetter(randomRef.current), selectedOrderId));
-  }, []);
+  const startAction = useCallback(
+    (selectedModeId: ModeId, selectedOrderId: OrderId = DEFAULT_ORDER) => {
+      if (!createGameMode(selectedModeId) || !createInputOrder(selectedOrderId)) return;
+      dispatch(start(selectedModeId, randomLetter(randomRef.current), selectedOrderId));
+    },
+    [],
+  );
 
   const retryAction = useCallback(() => {
     dispatch(retry(randomLetter(randomRef.current)));
   }, []);
 
   const quitAction = useCallback(() => dispatch(quit()), []);
-  const pressLetterAction = useCallback((letter) => dispatch(pressKey(letter)), []);
+  const pressLetterAction = useCallback((letter: Letter) => dispatch(pressKey(letter)), []);
 
   return {
     state,

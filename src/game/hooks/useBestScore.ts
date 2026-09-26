@@ -1,9 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { loadBestScore, saveBestScore } from '../infrastructure/bestScoreStorage';
+import type { StorageLike } from '../infrastructure/bestScoreStorage';
 
-export default function useBestScore(slotId, score, finished, storage) {
+export interface UseBestScoreResult {
+  best: number;
+  isNewRecord: boolean;
+}
+
+export default function useBestScore(
+  slotId: string,
+  score: number,
+  finished: boolean,
+  storage?: StorageLike,
+): UseBestScoreResult {
   const [slot, setSlot] = useState(() => ({ id: slotId, best: loadBestScore(slotId, storage) }));
-  const [recordScore, setRecordScore] = useState(null);
+  const [recordScore, setRecordScore] = useState<number | null>(null);
   const [wasFinished, setWasFinished] = useState(false);
 
   let { best } = slot;
@@ -38,7 +49,7 @@ export default function useBestScore(slotId, score, finished, storage) {
   // with no re-render in between, so the dependency array alone can't stop
   // the second run; this ref (read/written only here, never during render)
   // remembers the last (slot, score) pair already persisted.
-  const lastSavedRef = useRef(null);
+  const lastSavedRef = useRef<string | null>(null);
   useEffect(() => {
     if (recordScore === null) return;
     const saveKey = `${slotId}:${recordScore}`;

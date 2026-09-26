@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { toLetter } from '../domain/letters';
+import type { Letter } from '../domain/letters';
 
-export default function useLetterInput(onLetter) {
+export default function useLetterInput(onLetter: (letter: Letter) => void): void {
   const onLetterRef = useRef(onLetter);
 
   useEffect(() => {
@@ -9,7 +10,7 @@ export default function useLetterInput(onLetter) {
   }, [onLetter]);
 
   useEffect(() => {
-    function handleKeyDown(event) {
+    function handleKeyDown(event: KeyboardEvent): void {
       if (event.repeat || event.ctrlKey || event.altKey || event.metaKey) {
         return;
       }

@@ -1,13 +1,16 @@
-import React from 'react';
+import { StrictMode } from 'react';
 import { renderHook } from '@testing-library/react';
 import useBestScore from './useBestScore';
+import type { UseBestScoreResult } from './useBestScore';
+import type { StorageLike } from '../infrastructure/bestScoreStorage';
 
 const KEY_PREFIX = 'gameWithKeyboard.bestScore.';
 
-function makeMemoryStorage(initial = {}) {
-  const store = { ...initial };
+function makeMemoryStorage(initial: Record<string, string> = {}): StorageLike {
+  const store: Record<string, string> = { ...initial };
   return {
-    getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
+    getItem: (key) =>
+      Object.prototype.hasOwnProperty.call(store, key) ? (store[key] ?? null) : null,
     setItem: (key, value) => {
       store[key] = String(value);
     },
@@ -79,7 +82,9 @@ describe('useBestScore', () => {
     });
     const { result, rerender } = renderHook(
       ({ modeId }) => useBestScore(modeId, 0, false, storage),
-      { initialProps: { modeId: 'rookie' } },
+      {
+        initialProps: { modeId: 'rookie' },
+      },
     );
 
     expect(result.current.best).toBe(10);
@@ -113,7 +118,7 @@ describe('useBestScore', () => {
     const setItemSpy = vi.spyOn(storage, 'setItem');
 
     renderHook(() => useBestScore('rookie', 50, true, storage), {
-      wrapper: React.StrictMode,
+      wrapper: StrictMode,
     });
 
     expect(setItemSpy).toHaveBeenCalledTimes(1);
@@ -133,5 +138,17 @@ describe('useBestScore - GameScreen-like transition', () => {
     rerender({ modeId: 'expert', score: 70, finished: true });
 
     expect(result.current.best).toBe(70);
+  });
+});
+
+describe('types', () => {
+  it('types the parameters and result', () => {
+    expectTypeOf(useBestScore).parameters.toEqualTypeOf<[string, number, boolean, StorageLike?]>();
+    expectTypeOf(useBestScore).returns.toEqualTypeOf<UseBestScoreResult>();
+  });
+
+  it('rejects a fake storage missing setItem as the optional 4th parameter', () => {
+    // @ts-expect-error StorageLike requires setItem, not just getItem
+    assertType<Parameters<typeof useBestScore>[3]>({ getItem: () => null });
   });
 });

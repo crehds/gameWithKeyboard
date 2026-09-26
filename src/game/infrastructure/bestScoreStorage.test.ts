@@ -1,9 +1,11 @@
 import { loadBestScore, saveBestScore } from './bestScoreStorage';
+import type { StorageLike } from './bestScoreStorage';
 
-function makeMemoryStorage(initial = {}) {
-  const store = { ...initial };
+function makeMemoryStorage(initial: Record<string, string> = {}): StorageLike {
+  const store: Record<string, string> = { ...initial };
   return {
-    getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
+    getItem: (key) =>
+      Object.prototype.hasOwnProperty.call(store, key) ? (store[key] ?? null) : null,
     setItem: (key, value) => {
       store[key] = String(value);
     },
@@ -54,14 +56,14 @@ describe('bestScoreStorage', () => {
 
   it.each([['not-a-number'], ['-5'], ['12.5']])(
     'treats a corrupt stored value (%s) as 0',
-    (raw) => {
+    (raw: string) => {
       const storage = makeMemoryStorage({ 'gameWithKeyboard.bestScore.rookie': raw });
       expect(loadBestScore('rookie', storage)).toBe(0);
     },
   );
 
   it('never throws when the given storage throws on read or write', () => {
-    const throwingStorage = {
+    const throwingStorage: StorageLike = {
       getItem: () => {
         throw new Error('blocked');
       },
@@ -76,6 +78,7 @@ describe('bestScoreStorage', () => {
 
   it('never throws when merely accessing the default storage throws', () => {
     const original = Object.getOwnPropertyDescriptor(window, 'localStorage');
+    if (!original) throw new Error('expected window.localStorage to have a property descriptor');
     Object.defineProperty(window, 'localStorage', {
       configurable: true,
       get() {
@@ -90,5 +93,18 @@ describe('bestScoreStorage', () => {
     } finally {
       Object.defineProperty(window, 'localStorage', original);
     }
+  });
+
+  describe('types', () => {
+    it('types loadBestScore and saveBestScore', () => {
+      expectTypeOf(loadBestScore).parameters.toEqualTypeOf<[string, StorageLike?]>();
+      expectTypeOf(loadBestScore).returns.toBeNumber();
+      expectTypeOf(saveBestScore).parameters.toEqualTypeOf<[string, number, StorageLike?]>();
+    });
+
+    it('rejects a fake storage missing setItem', () => {
+      // @ts-expect-error StorageLike requires setItem, not just getItem
+      expect(loadBestScore('rookie', { getItem: () => null })).toBe(0);
+    });
   });
 });

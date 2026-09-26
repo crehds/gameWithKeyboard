@@ -1,6 +1,11 @@
 import { act, renderHook } from '@testing-library/react';
 import useGame from './useGame';
+import type { UseGameResult } from './useGame';
 import { createGameMode } from '../domain/gameMode';
+import type { ModeId } from '../domain/gameMode';
+import type { OrderId } from '../domain/inputOrder';
+import type { GameState } from '../domain/gameMachine';
+import type { Letter } from '../domain/letters';
 import {
   ROUND_INTRO_DELAY,
   INPUT_READY_DELAY,
@@ -10,15 +15,15 @@ import {
 
 const fixedRandom = () => 0; // always produces 'A'
 
-function flashIntervalFor(modeId, round) {
+function flashIntervalFor(modeId: ModeId, round: number): number {
   return createGameMode(modeId).paceForRound(round).flashInterval;
 }
 
-function showDurationFor(modeId, round) {
+function showDurationFor(modeId: ModeId, round: number): number {
   return createGameMode(modeId).paceForRound(round).showDuration;
 }
 
-function advanceToAwaitingInput(round, modeId = 'rookie') {
+function advanceToAwaitingInput(round: number, modeId: ModeId = 'rookie'): void {
   act(() => {
     vi.advanceTimersByTime(ROUND_INTRO_DELAY);
   });
@@ -51,6 +56,7 @@ describe('useGame', () => {
     const random = vi.fn(() => 0);
     const { result } = renderHook(() => useGame(random));
 
+    // @ts-expect-error 'legendary' is not a member of ModeId
     act(() => result.current.start('legendary'));
 
     expect(result.current.state.phase).toBe('configuring');
@@ -61,6 +67,7 @@ describe('useGame', () => {
     const random = vi.fn(() => 0);
     const { result } = renderHook(() => useGame(random));
 
+    // @ts-expect-error 'sideways' is not a member of OrderId
     act(() => result.current.start('rookie', 'sideways'));
 
     expect(result.current.state.phase).toBe('configuring');
@@ -157,10 +164,9 @@ describe('useGame', () => {
   });
 
   it('keeps the round-complete timer running when random changes mid-delay, and draws from the new one', () => {
-    const { result, rerender } = renderHook(
-      ({ random }) => useGame(random),
-      { initialProps: { random: () => 0 } }, // 'A'
-    );
+    const { result, rerender } = renderHook(({ random }) => useGame(random), {
+      initialProps: { random: () => 0 }, // 'A'
+    });
     act(() => result.current.start('rookie'));
     advanceToAwaitingInput(0);
     act(() => result.current.pressLetter('A'));
@@ -178,10 +184,9 @@ describe('useGame', () => {
   });
 
   it('start and retry draw from the latest random passed to the hook', () => {
-    const { result, rerender } = renderHook(
-      ({ random }) => useGame(random),
-      { initialProps: { random: () => 0 } }, // 'A'
-    );
+    const { result, rerender } = renderHook(({ random }) => useGame(random), {
+      initialProps: { random: () => 0 }, // 'A'
+    });
 
     rerender({ random: () => 0.99 }); // 'Z'
     act(() => result.current.start('rookie'));
@@ -201,6 +206,7 @@ describe('useGame', () => {
     act(() => result.current.start('rookie'));
     advanceToAwaitingInput(0);
 
+    // @ts-expect-error pressLetter requires a Letter, not null
     act(() => result.current.pressLetter(null));
 
     expect(result.current.state.phase).toBe('awaitingInput');
@@ -283,5 +289,17 @@ describe('useGame', () => {
       vi.advanceTimersByTime(1);
     });
     expect(result.current.state.showIndex).toBe(1);
+  });
+
+  describe('types', () => {
+    it('types the returned state and actions', () => {
+      const { result } = renderHook(() => useGame(fixedRandom));
+
+      expectTypeOf(result.current.state).toEqualTypeOf<GameState>();
+      // Type-only checks (not `expectTypeOf(result.current.start)`): extracting a
+      // method-shorthand property as a bare value trips @typescript-eslint/unbound-method.
+      expectTypeOf<UseGameResult['start']>().parameters.toEqualTypeOf<[ModeId, OrderId?]>();
+      expectTypeOf<UseGameResult['pressLetter']>().parameters.toEqualTypeOf<[Letter]>();
+    });
   });
 });
