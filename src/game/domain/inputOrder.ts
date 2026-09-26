@@ -1,6 +1,6 @@
 // Input order is a Strategy: interchangeable functions sharing one contract
 // (expectedLetter(sequence, inputIndex)), selected by id, the same convention
-// as gameMode.js's createGameMode(id). Unlike modes, the rule that changes
+// as gameMode.ts's createGameMode(id). Unlike modes, the rule that changes
 // here is *how input is checked*, so it is expressed as a strategy rather
 // than as data the reducer branches on.
 
