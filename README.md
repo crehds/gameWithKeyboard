@@ -12,7 +12,7 @@ Starts the Vite dev server.
 
 ### `npm run build`
 
-Builds the app for production into the `dist` folder.
+Type-checks the project, then builds the app for production into the `dist` folder. A type error fails the build, so it also blocks deploys.
 
 ### `npm run preview`
 
