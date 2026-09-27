@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import DifficultyDialog from '.';
 import type { DifficultyDialogProps } from '.';
@@ -52,6 +52,20 @@ describe('DifficultyDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Jugar' }));
 
     expect(onStart).toHaveBeenCalledWith('expert', 'forward');
+  });
+
+  it('keeps the current difficulty when the select reports a value that is not a mode', async () => {
+    const user = userEvent.setup();
+    const onStart = vi.fn();
+    render(<DifficultyDialog onStart={onStart} onCancel={() => {}} />);
+
+    // Picking an option can't produce this; it stands in for a tampered DOM value.
+    fireEvent.change(screen.getByLabelText('Selecciona la dificultad'), {
+      target: { value: 'legendary' },
+    });
+    await user.click(screen.getByRole('button', { name: 'Jugar' }));
+
+    expect(onStart).toHaveBeenCalledWith('normal', 'forward');
   });
 
   it('the reverse checkbox is unchecked by default', () => {
