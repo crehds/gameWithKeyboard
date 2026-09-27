@@ -26,14 +26,17 @@ import {
   ROUND_COMPLETE_DELAY,
 } from '../domain/timing';
 
+// Function properties, not method shorthand: these are standalone callbacks
+// that consumers destructure, and property syntax gets strict (not bivariant)
+// parameter checks.
 export interface UseGameResult {
   state: GameState;
-  openSetup(): void;
-  start(modeId: ModeId, orderId?: OrderId): void;
-  cancelSetup(): void;
-  retry(): void;
-  quit(): void;
-  pressLetter(letter: Letter): void;
+  openSetup: () => void;
+  start: (modeId: ModeId, orderId?: OrderId) => void;
+  cancelSetup: () => void;
+  retry: () => void;
+  quit: () => void;
+  pressLetter: (letter: Letter) => void;
 }
 
 export default function useGame(random: () => number = Math.random): UseGameResult {

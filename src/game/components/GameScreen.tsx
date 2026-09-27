@@ -1,25 +1,38 @@
-import PropTypes from 'prop-types';
 import useGame from '../hooks/useGame';
 import useLetterInput from '../hooks/useLetterInput';
 import useBestScore from '../hooks/useBestScore';
 import { isPlaying, keyStatus } from '../domain/gameMachine';
+import type { Phase } from '../domain/gameMachine';
 import { createGameMode } from '../domain/gameMode';
 import { REVERSE_ORDER } from '../domain/inputOrder';
 import { bestScoreSlot } from '../domain/scoring';
+import type { StorageLike } from '../infrastructure/bestScoreStorage';
 import StatusBar from './StatusBar';
 import Keyboard from './Keyboard';
 import DifficultyDialog from './dialogs/DifficultyDialog';
 import RoundBanner from './dialogs/RoundBanner';
 import ResultDialog from './dialogs/ResultDialog';
 
-function GameScreen({ random = Math.random, bestScoreStorage = undefined }) {
+export interface GameScreenProps {
+  random?: () => number;
+  bestScoreStorage?: StorageLike;
+}
+
+// Narrows Phase to the two phases ResultDialog accepts. Called directly in
+// the conditions below (never through the `finished` boolean) so TypeScript
+// can actually narrow `phase` at the call site instead of casting it.
+function isFinishedPhase(phase: Phase): phase is Extract<Phase, 'won' | 'lost'> {
+  return phase === 'won' || phase === 'lost';
+}
+
+function GameScreen({ random = Math.random, bestScoreStorage = undefined }: GameScreenProps) {
   const { state, openSetup, start, cancelSetup, retry, quit, pressLetter } = useGame(random);
 
   useLetterInput(pressLetter);
 
   const { phase, round, showIndex, modeId, orderId, score } = state;
   const mode = createGameMode(modeId);
-  const finished = phase === 'won' || phase === 'lost';
+  const finished = isFinishedPhase(phase);
   const { best, isNewRecord } = useBestScore(
     bestScoreSlot(modeId, orderId),
     score,
@@ -39,7 +52,7 @@ function GameScreen({ random = Math.random, bestScoreStorage = undefined }) {
           reversed={orderId === REVERSE_ORDER}
         />
       )}
-      {finished && (
+      {isFinishedPhase(phase) && (
         <ResultDialog
           result={phase}
           onRetry={retry}
@@ -52,13 +65,5 @@ function GameScreen({ random = Math.random, bestScoreStorage = undefined }) {
     </>
   );
 }
-
-GameScreen.propTypes = {
-  random: PropTypes.func,
-  bestScoreStorage: PropTypes.shape({
-    getItem: PropTypes.func.isRequired,
-    setItem: PropTypes.func.isRequired,
-  }),
-};
 
 export default GameScreen;

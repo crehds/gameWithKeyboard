@@ -1,11 +1,15 @@
-import React from 'react';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { UserEvent } from '@testing-library/user-event';
+import { StrictMode } from 'react';
 import GameScreen from './GameScreen';
+import type { GameScreenProps } from './GameScreen';
 import { ROUND_INTRO_DELAY, INPUT_READY_DELAY, ROUND_COMPLETE_DELAY } from '../domain/timing';
 import { createGameMode } from '../domain/gameMode';
+import type { ModeId } from '../domain/gameMode';
+import type { StorageLike } from '../infrastructure/bestScoreStorage';
 
-function advanceToAwaitingInput(round, modeId = 'expert') {
+function advanceToAwaitingInput(round: number, modeId: ModeId = 'expert'): void {
   act(() => {
     vi.advanceTimersByTime(ROUND_INTRO_DELAY);
   });
@@ -24,7 +28,12 @@ function advanceToAwaitingInput(round, modeId = 'expert') {
 // random() of 0), then, unless it is the last round, advances past the
 // round-complete delay before recursing into the next round. Recursion keeps
 // this sequential without an eslint-disabled await-in-loop.
-async function playRoundsToVictory(gameUser, round, totalRounds, modeId = 'expert') {
+async function playRoundsToVictory(
+  gameUser: UserEvent,
+  round: number,
+  totalRounds: number,
+  modeId: ModeId = 'expert',
+): Promise<void> {
   advanceToAwaitingInput(round, modeId);
   await gameUser.keyboard('a'.repeat(round + 1));
   if (round < totalRounds - 1) {
@@ -35,10 +44,11 @@ async function playRoundsToVictory(gameUser, round, totalRounds, modeId = 'exper
   }
 }
 
-function makeMemoryStorage() {
-  const store = {};
+function makeMemoryStorage(): StorageLike {
+  const store: Record<string, string> = {};
   return {
-    getItem: (key) => (Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null),
+    getItem: (key) =>
+      Object.prototype.hasOwnProperty.call(store, key) ? (store[key] ?? null) : null,
     setItem: (key, value) => {
       store[key] = String(value);
     },
@@ -48,10 +58,10 @@ function makeMemoryStorage() {
 // Yields one fixed value per random() call, in order (repeating the last
 // value once exhausted), so successive letters (start, each next round,
 // retry) can be made to differ deterministically.
-function makeSequentialRandom(values) {
+function makeSequentialRandom(values: readonly number[]): () => number {
   let index = 0;
   return () => {
-    const value = values[index] === undefined ? values[values.length - 1] : values[index];
+    const value = values[index] ?? values[values.length - 1] ?? 0;
     index += 1;
     return value;
   };
@@ -61,7 +71,12 @@ function makeSequentialRandom(values) {
 // random() of 0), then presses a wrong key on the following round to end the
 // game. Recursion keeps this sequential without an eslint-disabled
 // await-in-loop.
-async function playRoundsThenFail(gameUser, round, roundsToPlay, modeId) {
+async function playRoundsThenFail(
+  gameUser: UserEvent,
+  round: number,
+  roundsToPlay: number,
+  modeId: ModeId,
+): Promise<void> {
   advanceToAwaitingInput(round, modeId);
   if (round < roundsToPlay) {
     await gameUser.keyboard('a'.repeat(round + 1));
@@ -75,7 +90,7 @@ async function playRoundsThenFail(gameUser, round, roundsToPlay, modeId) {
 }
 
 describe('GameScreen integration', () => {
-  let user;
+  let user: UserEvent;
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -91,9 +106,9 @@ describe('GameScreen integration', () => {
     const random = () => 0; // always 'A'
 
     render(
-      <React.StrictMode>
+      <StrictMode>
         <GameScreen random={random} />
-      </React.StrictMode>,
+      </StrictMode>,
     );
 
     expect(screen.getAllByRole('dialog')).toHaveLength(1);
@@ -132,9 +147,9 @@ describe('GameScreen integration', () => {
     const random = () => 0; // always 'A'
 
     render(
-      <React.StrictMode>
+      <StrictMode>
         <GameScreen random={random} />
-      </React.StrictMode>,
+      </StrictMode>,
     );
 
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
@@ -157,9 +172,9 @@ describe('GameScreen integration', () => {
     const totalRounds = createGameMode('rookie').rounds;
 
     render(
-      <React.StrictMode>
+      <StrictMode>
         <GameScreen random={random} />
-      </React.StrictMode>,
+      </StrictMode>,
     );
 
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'rookie');
@@ -181,9 +196,9 @@ describe('GameScreen integration', () => {
     const random = makeSequentialRandom([0, 0.05]);
 
     render(
-      <React.StrictMode>
+      <StrictMode>
         <GameScreen random={random} />
-      </React.StrictMode>,
+      </StrictMode>,
     );
 
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
@@ -214,9 +229,9 @@ describe('GameScreen integration', () => {
     const random = () => 0; // always 'A'
 
     render(
-      <React.StrictMode>
+      <StrictMode>
         <GameScreen random={random} />
-      </React.StrictMode>,
+      </StrictMode>,
     );
 
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'endless');
@@ -235,9 +250,9 @@ describe('GameScreen integration', () => {
     const storage = makeMemoryStorage();
 
     render(
-      <React.StrictMode>
+      <StrictMode>
         <GameScreen random={random} bestScoreStorage={storage} />
-      </React.StrictMode>,
+      </StrictMode>,
     );
 
     await user.selectOptions(screen.getByLabelText('Selecciona la dificultad'), 'expert');
@@ -283,9 +298,9 @@ describe('GameScreen integration', () => {
     const random = makeSequentialRandom([0, 0.05]);
 
     render(
-      <React.StrictMode>
+      <StrictMode>
         <GameScreen random={random} />
-      </React.StrictMode>,
+      </StrictMode>,
     );
 
     await user.click(screen.getByLabelText('Reverso: escribe la secuencia al revés'));
@@ -318,9 +333,9 @@ describe('GameScreen integration', () => {
     storage.setItem('gameWithKeyboard.bestScore.expert', '500');
 
     render(
-      <React.StrictMode>
+      <StrictMode>
         <GameScreen random={random} bestScoreStorage={storage} />
-      </React.StrictMode>,
+      </StrictMode>,
     );
 
     await user.click(screen.getByLabelText('Reverso: escribe la secuencia al revés'));
@@ -356,5 +371,19 @@ describe('GameScreen integration', () => {
     const forwardLostDialog = screen.getByRole('dialog');
     expect(within(forwardLostDialog).getByText('Récord: 500')).toBeInTheDocument();
     expect(within(forwardLostDialog).queryByText('Nuevo récord!')).not.toBeInTheDocument();
+  });
+
+  describe('types', () => {
+    it('types random and bestScoreStorage as optional', () => {
+      expectTypeOf<GameScreenProps['random']>().toEqualTypeOf<(() => number) | undefined>();
+      expectTypeOf<GameScreenProps['bestScoreStorage']>().toEqualTypeOf<StorageLike | undefined>();
+    });
+
+    it('rejects a non-function random', () => {
+      assertType(
+        // @ts-expect-error random must be a function, not a number
+        <GameScreen random={0.5} />,
+      );
+    });
   });
 });

@@ -50,15 +50,15 @@ export default defineConfig([
   {
     ...importXFlatConfigs.recommended,
     settings: {
-      'import-x/resolver-next': [
-        createNodeResolver({ extensions: ['.js', '.jsx', '.ts', '.tsx'] }),
-      ],
-      // Lets import-x parse the .ts/.tsx files the resolver above finds (for
-      // example a .jsx file importing a .ts module) with the TypeScript
-      // parser instead of the default one, which cannot read TS syntax.
-      // `@typescript-eslint/parser` comes from the `typescript-eslint`
-      // dependency, so no separate resolver package is needed.
-      'import-x/extensions': ['.js', '.jsx', '.ts', '.tsx'],
+      // '.js' stays: vite.config.js and this file are still plain JavaScript.
+      'import-x/resolver-next': [createNodeResolver({ extensions: ['.js', '.ts', '.tsx'] })],
+      // Lets import-x parse .ts/.tsx modules with the TypeScript parser
+      // instead of the default one, which cannot read TS syntax — needed if a
+      // plain .js file (e.g. this config or vite.config.js) ever imports one
+      // directly. `@typescript-eslint/parser` comes from the
+      // `typescript-eslint` dependency, so no separate resolver package is
+      // needed.
+      'import-x/extensions': ['.js', '.ts', '.tsx'],
       'import-x/parsers': { '@typescript-eslint/parser': ['.ts', '.tsx'] },
     },
     rules: {
@@ -85,7 +85,9 @@ export default defineConfig([
   },
 
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    // '.js' stays for vite.config.js and this file; '.jsx' no longer matches
+    // anything now that src/ is all TypeScript.
+    files: ['**/*.{js,ts,tsx}'],
     languageOptions: {
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
@@ -134,7 +136,7 @@ export default defineConfig([
   // Test files: vitest's own recommended rules and globals replace the old
   // hand-listed test globals, and may import devDependencies freely.
   {
-    files: ['**/*.test.{js,jsx,ts,tsx}', 'src/setupTests.ts'],
+    files: ['**/*.test.{ts,tsx}', 'src/setupTests.ts'],
     plugins: { vitest: vitestPlugin },
     rules: {
       ...vitestPlugin.configs.recommended.rules,
